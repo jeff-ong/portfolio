@@ -1,6 +1,6 @@
 # JEFF (BOON KEAT) ONG
 
-linkedin.com/in/jeff-ong · [jeff-ong.com](https://jeff-ong.com) · [arcpx.com](https://arcpx.com) · Toronto, ON
+[LinkedIn](linkedin.com/in/jeff-ong) · [jeff-ong.com](https://jeff-ong.com) · [arcpx.com](https://arcpx.com) · Toronto, ON
 
 ---
 
@@ -38,14 +38,14 @@ Principal Software Developer with a background in computer science and marketing
 - Managed cloud infrastructure using AWS CDK and CloudFormation.
 - Contributed to global-scale web properties including WhatsApp.com, about.meta.com, and projectaria.com at Meta.
 
-### UX Design Consultant (Part-time Contract) | Anomaly
+### UX Design Consultant (Contract) | Anomaly
 *May 2024 – September 2024*
 
 - Launched a Telegram mini app.
 - Designed user journeys to improve engagement.
 - Built a UI component library for rapid prototyping.
 
-### Front-End Engineer (Part-time Contract) | MirrorMe3D
+### Front-End Engineer (Contract) | MirrorMe3D
 *February 2019 – October 2023*
 
 - Developed a 3D scan analysis application for remote medical monitoring and diagnostics.
