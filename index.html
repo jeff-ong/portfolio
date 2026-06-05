@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeff Ong | Principal Software Developer</title>
+  <meta name="description" content="Software developer with 10+ years shipping production AI systems, data pipelines, and cloud-native applications. Computer Science graduate, Toronto.">
+  <meta name="author" content="Jeff Ong">
+  <meta property="og:title" content="Jeff Ong | Principal Software Developer">
+  <meta property="og:description" content="Production AI systems, RAG architectures, and cloud-native engineering from discovery through launch.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#">Jeff.</a>
+    <nav class="site-nav" aria-label="Primary">
+      <ul id="nav-menu" class="nav-links">
+        <li><a href="#highlights" data-nav="highlights">Work</a></li>
+        <li><a href="#experience" data-nav="experience">Experience</a></li>
+        <li><a href="#education" data-nav="education">Education</a></li>
+      </ul>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </nav>
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode">
+      <span class="theme-icon theme-icon--light" aria-hidden="true">☀</span>
+      <span class="theme-icon theme-icon--dark" aria-hidden="true">☾</span>
+    </button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-intro">
+          <p class="intro-greeting">
+            Hello! This is <strong>Jeff</strong>,<br>
+            a <strong>Software Developer</strong> in <strong>AI &amp; Cloud Systems</strong>.
+          </p>
+          <div class="intro-bio">
+            <p>
+              I have been working on
+              <a href="https://arcpx.com/" target="_blank" rel="noopener noreferrer">ARCPX</a>,
+              a modular platform where users compose agentic workflows that fit their needs.
+              Before that, I architected enterprise AI systems on AWS — agentic applications, ingestion pipelines,
+              and GraphRAG retrieval — for
+              <a href="https://www.monks.com/" target="_blank" rel="noopener noreferrer">Monks</a> and
+              <a href="https://aws.amazon.com/" target="_blank" rel="noopener noreferrer">Amazon</a>,
+              and contributed to global-scale web platforms including WhatsApp.com at
+              <a href="https://about.meta.com/" target="_blank" rel="noopener noreferrer">Meta</a>.
+            </p>
+          </div>
+          <p class="intro-contact">
+            <a href="https://linkedin.com/in/jeff-ong" target="_blank" rel="noopener noreferrer">Connect on LinkedIn</a>
+            for new opportunities · Toronto, ON
+          </p>
+        </div>
+        <figure class="hero-photo">
+          <img src="assets/profile.png" alt="Jeff Ong" width="320" height="320">
+        </figure>
+      </div>
+    </section>
+
+    <section class="status-grid" aria-label="Current status">
+      <article>
+        <h2>Current</h2>
+        <p>Founding Engineer at <a href="https://arcpx.com/" target="_blank" rel="noopener noreferrer">ARCPX</a></p>
+      </article>
+      <article>
+        <h2>Open to</h2>
+        <p>Staff / Principal AI &amp; platform engineering roles</p>
+      </article>
+      <article>
+        <h2>Previously</h2>
+        <p>
+          <a href="https://about.meta.com/" target="_blank" rel="noopener noreferrer">Meta</a>,
+          <a href="https://aws.amazon.com/" target="_blank" rel="noopener noreferrer">Amazon</a>, and
+          <a href="https://www.monks.com/" target="_blank" rel="noopener noreferrer">Monks</a>
+        </p>
+      </article>
+    </section>
+
+    <section id="highlights" class="section" data-section="highlights">
+      <h2 class="section-display">Selected Work.</h2>
+
+      <article class="project">
+        <div class="project-meta">
+          <span class="pill">Orchestration</span>
+          <span class="pill">Agentic</span>
+        </div>
+        <h3 class="project-title"><a href="https://arcpx.com/" target="_blank" rel="noopener noreferrer">ARCPX</a></h3>
+        <p class="project-desc">ARCPX is a modular agentic platform where users compose agents to fit their workflow — an asynchronous DAG engine, configurable nodes, and a persistent memory layer. As founding engineer, I own the full lifecycle from technical discovery and system design through production deployment on cloud infrastructure.</p>
+      </article>
+
+      <article class="project">
+        <div class="project-meta">
+          <span class="pill">AI / Agentic</span>
+          <span class="pill">AWS</span>
+        </div>
+        <h3 class="project-title">GraphRAG knowledge systems</h3>
+        <p class="project-desc">Built enterprise agentic applications on AWS with a hybrid retrieval stack — vector search paired with a custom knowledge graph over unstructured data. The architecture improved response accuracy by 20% over vector-only baselines and gave the system a real-time, context-aware knowledge layer suitable for production workloads.</p>
+      </article>
+
+      <article class="project">
+        <div class="project-meta">
+          <span class="pill">Platform</span>
+          <span class="pill">Meta</span>
+        </div>
+        <h3 class="project-title">WhatsApp.com migration</h3>
+        <p class="project-desc">Re-engineered Meta's content management infrastructure, spearheading the migration of complex localized datasets from legacy systems. This architectural overhaul established a scalable foundation for global platform development and multi-region deployment across WhatsApp.com and related properties.</p>
+      </article>
+
+      <article class="project">
+        <div class="project-meta">
+          <span class="pill">Robotics</span>
+          <span class="pill">AWS re:Invent</span>
+        </div>
+        <h3 class="project-title">Humanoid robot demo</h3>
+        <p class="project-desc">Spearheaded technical development for a humanoid robot featured on stage at AWS re:Invent 2023 — integrating real-time perception, orchestration, and on-device inference into a live demo environment built for a global audience.</p>
+      </article>
+    </section>
+
+    <section id="experience" class="section" data-section="experience">
+      <h2 class="section-display">Experience.</h2>
+
+      <article class="role">
+        <div class="role-top">
+          <h3>Principal Software Developer</h3>
+          <time>2018 – Present</time>
+        </div>
+        <p class="role-org">Monks, Amazon, Meta · Toronto, ON</p>
+        <ul class="role-details">
+          <li>10+ years delivering production software in Python, TypeScript, and modern web stacks across agency, cloud, and platform teams</li>
+          <li>Owned AI-driven products end to end — technical discovery, architecture, implementation, launch, and iteration at scale</li>
+          <li>Designed and deployed agentic applications on AWS using CDK and CloudFormation, with guardrails, retry logic, and high-availability patterns</li>
+          <li>Built data pipelines for structured and unstructured sources, combining vector databases with knowledge-graph and RAG-style retrieval for enterprise use cases</li>
+          <li>Raised LLM accuracy 20% and cut latency 20% through context-window tuning, prompt engineering, and hybrid retrieval design</li>
+          <li>Facilitated client-facing discovery sessions to shape requirements, evaluate trade-offs, and align engineering roadmaps with business outcomes</li>
+          <li>Established TypeScript standards and parallelized CI/CD workflows to improve code quality and deployment throughput across teams</li>
+          <li>Shipped global-scale web properties including WhatsApp.com, about.meta.com, and projectaria.com at Meta</li>
+        </ul>
+      </article>
+
+      <article class="role">
+        <div class="role-top">
+          <h3>Design Consultant</h3>
+          <time>Aug – Sept 2024</time>
+        </div>
+        <p class="role-org">Anomaly · Toronto, ON</p>
+        <ul class="role-details">
+          <li>Launched a Telegram mini app with a UI component library for rapid prototyping</li>
+        </ul>
+      </article>
+
+      <article class="role">
+        <div class="role-top">
+          <h3>Front-End Engineer</h3>
+          <time>2019 – 2023</time>
+        </div>
+        <p class="role-org">MirrorMe3D · Toronto, ON</p>
+        <ul class="role-details">
+          <li>Built 3D scan analysis tools for remote medical monitoring using WebGL</li>
+        </ul>
+      </article>
+
+      <article class="role">
+        <div class="role-top">
+          <h3>Assistant Instructor</h3>
+          <time>2019 – 2023</time>
+        </div>
+        <p class="role-org">Trilogy Education · Toronto, ON</p>
+        <ul class="role-details">
+          <li>Tutored students in web development, data structures, and algorithms</li>
+        </ul>
+      </article>
+
+      <article class="role">
+        <div class="role-top">
+          <h3>Web Developer</h3>
+          <time>2018</time>
+        </div>
+        <p class="role-org">Cotton Candy · Toronto, ON</p>
+        <ul class="role-details">
+          <li>Developed Shopify themes and won a long-term RFP for e-commerce platform management</li>
+        </ul>
+      </article>
+
+      <article class="role">
+        <div class="role-top">
+          <h3>UI Developer &amp; Designer</h3>
+          <time>2017 – 2018</time>
+        </div>
+        <p class="role-org">Dig Insights · Toronto, ON</p>
+        <ul class="role-details">
+          <li>Designed and shipped data analysis platforms for user sampling and analytics</li>
+        </ul>
+      </article>
+
+      <article class="role">
+        <div class="role-top">
+          <h3>Front-End Developer</h3>
+          <time>2015 – 2017</time>
+        </div>
+        <p class="role-org">AutoTrader · Toronto, ON</p>
+        <ul class="role-details">
+          <li>Developed e-commerce websites and CMS systems</li>
+        </ul>
+      </article>
+    </section>
+
+    <section id="education" class="section section--compact" data-section="education">
+      <h2 class="section-display">Education.</h2>
+      <dl class="edu-list">
+        <div>
+          <dt>B.S. Computer Science</dt>
+          <dd>Ryerson (TMU) University, Toronto · 2018</dd>
+        </div>
+        <div>
+          <dt>UI Design</dt>
+          <dd>BrainStation · 2017</dd>
+        </div>
+        <div>
+          <dt>Media Communications</dt>
+          <dd>Humber College · 2014</dd>
+        </div>
+        <div>
+          <dt>Sound Engineering</dt>
+          <dd>Sound and Music Production · 2011</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="contact">
+      <h2 class="contact-title">Let's connect.</h2>
+      <p class="contact-text">Open to staff and principal engineering roles — reach out for opportunities, consulting, or a coffee chat in Toronto.</p>
+      <a class="contact-link" href="https://linkedin.com/in/jeff-ong" target="_blank" rel="noopener noreferrer">LinkedIn →</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Designed &amp; built by Jeff Ong · © 2026</p>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
