@@ -228,7 +228,8 @@ a {
 }
 
 .intro-contact a {
-  font-style: italic;
+  font-family: var(--font-sans);
+  font-style: normal;
   color: var(--text);
 }
 
@@ -468,6 +469,7 @@ a {
 }
 
 .contact-link {
+  font-family: var(--font-sans);
   font-size: 1.1rem;
   font-weight: 700;
   text-decoration: none;
