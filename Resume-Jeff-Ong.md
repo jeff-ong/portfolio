@@ -1,6 +1,6 @@
 # JEFF (BOON KEAT) ONG
 
-[LinkedIn](linkedin.com/in/jeff-ong) · [jeff-ong.com](https://jeff-ong.com) · [arcpx.com](https://arcpx.com) · Toronto, ON
+[LinkedIn](linkedin.com/in/jeff-ong) · [GitHub (jeff-ong)](https://github.com/jeff-ong) · [GitHub (arcpx-eng)](https://github.com/arcpx-eng) · [jeff-ong.com](https://jeff-ong.com) · [arcpx.com](https://arcpx.com) · Toronto, ON
 
 ---
 
