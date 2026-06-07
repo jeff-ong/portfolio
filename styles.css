@@ -233,6 +233,11 @@ a {
   color: var(--text);
 }
 
+.intro-location {
+  display: block;
+  margin-top: 0.35rem;
+}
+
 /* Status grid */
 .status-grid {
   display: grid;
