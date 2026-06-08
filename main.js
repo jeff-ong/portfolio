@@ -42,19 +42,28 @@ function setActiveNav(id) {
   });
 }
 
-if ("IntersectionObserver" in window && sections.length) {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setActiveNav(entry.target.dataset.section);
-        }
-      });
-    },
-    { threshold: 0.2, rootMargin: "-15% 0px -65% 0px" }
-  );
+if (sections.length) {
+  function updateActiveNav() {
+    const triggerY = window.innerHeight * 0.35;
+    let activeId = null;
+    sections.forEach((section) => {
+      if (section.getBoundingClientRect().top <= triggerY) {
+        activeId = section.dataset.section;
+      }
+    });
+    setActiveNav(activeId);
+  }
 
-  sections.forEach((section) => observer.observe(section));
-} else if (navLinks.length) {
-  setActiveNav(navLinks[0].dataset.nav);
+  let ticking = false;
+  window.addEventListener("scroll", () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        updateActiveNav();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  updateActiveNav();
 }
