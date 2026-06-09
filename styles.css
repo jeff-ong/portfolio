@@ -105,6 +105,7 @@ a {
 .nav-links a {
   position: relative;
   padding-top: 0.65rem;
+  font-family: var(--font-sans);
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-muted);
