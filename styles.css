@@ -232,20 +232,39 @@ a {
   color: var(--text);
 }
 
-.intro-contact a {
-  font-style: normal;
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.social-link {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
   color: var(--text);
+  text-decoration: none;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.social-link:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+  background: var(--pill-bg);
 }
 
 .intro-location {
   display: block;
-  margin-top: 0.35rem;
+  margin-top: 0.85rem;
 }
 
 /* Status grid */
 .status-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
   max-width: var(--max);
   margin-inline: auto;
