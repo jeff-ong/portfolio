@@ -84,7 +84,7 @@ Covers artificial intelligence (AI), machine learning (ML), and generative AI co
 
 ## EDUCATION
 
-**B.S. Computer Science** | Ryerson (TMU) University · 2018  
+**Computer Science** | Ryerson (TMU) University · 2018  
 Java, Unix, C/C++, data structures and algorithms, object-oriented design.
 
 **UI Design** | BrainStation · 2017  
