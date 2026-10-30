@@ -538,6 +538,63 @@ img.work-tile-logo {
   color: var(--text-subtle);
 }
 
+.cookie-banner {
+  position: fixed;
+  z-index: 200;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  padding: 1rem var(--page-x);
+  background: var(--header-bg);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+}
+
+.cookie-banner[hidden] {
+  display: none;
+}
+
+body:has(.cookie-banner:not([hidden])) {
+  padding-bottom: 6.5rem;
+}
+
+.cookie-banner p {
+  margin: 0;
+  max-width: 42rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.cookie-banner-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.cookie-banner button {
+  min-height: 40px;
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--text);
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+}
+
+#cookie-accept {
+  background: var(--text);
+  color: var(--bg);
+}
+
 /* Responsive */
 @media (max-width: 860px) {
   .status-grid {
@@ -626,6 +683,15 @@ img.work-tile-logo {
   .nav-links a::before {
     display: none;
   }
+
+  .cookie-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cookie-banner-actions {
+    justify-content: flex-end;
+  }
 }
 
 @media print {
@@ -650,7 +716,8 @@ img.work-tile-logo {
   .site-header,
   .theme-toggle,
   .nav-toggle,
-  .site-footer {
+  .site-footer,
+  .cookie-banner {
     display: none;
   }
 
