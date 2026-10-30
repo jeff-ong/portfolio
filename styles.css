@@ -39,7 +39,7 @@ html {
 
 body {
   margin: 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.5;
   color: var(--text);
@@ -49,7 +49,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-sans);
+  font-family: var(--font-serif);
   font-weight: 700;
 }
 
@@ -274,6 +274,7 @@ a {
 
 .status-grid h2 {
   margin: 0 0 0.85rem;
+  font-family: var(--font-sans);
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-subtle);
@@ -407,6 +408,7 @@ img.work-tile-logo {
 }
 
 .work-tile-name {
+  font-family: var(--font-serif);
   font-size: clamp(1rem, 2.2vw, 1.35rem);
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -414,7 +416,6 @@ img.work-tile-logo {
 
 .work-tile-desc {
   max-width: 22rem;
-  font-family: var(--font-serif);
   font-size: clamp(0.9rem, 1.5vw, 1.05rem);
   font-weight: 400;
   line-height: 1.4;
@@ -426,6 +427,7 @@ img.work-tile-logo {
   max-width: var(--max);
   margin-inline: auto;
   padding: clamp(3rem, 6vw, 5rem) var(--page-x);
+  scroll-margin-top: 5.5rem;
 }
 
 .section-display {
@@ -476,11 +478,194 @@ img.work-tile-logo {
   text-decoration: underline;
 }
 
+.project-date {
+  display: block;
+  margin: -0.15rem 0 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-subtle);
+}
+
 .project-desc {
   max-width: 52rem;
   margin: 0;
   font-size: 1.2rem;
   line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* Article */
+.article-page {
+  max-width: 42rem;
+  margin-inline: auto;
+  padding: clamp(2.5rem, 6vw, 4.5rem) var(--page-x) clamp(3rem, 6vw, 5rem);
+}
+
+.article-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.article-back svg {
+  display: block;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+}
+
+.article-back:hover {
+  color: var(--text);
+}
+
+.article-title {
+  margin: 1.25rem 0 0.6rem;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.article-dek {
+  margin: 1.25rem 0 0;
+  font-size: 1.35rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.article-body h2 {
+  margin: 2.75rem 0 1rem;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+}
+
+.article-body h3 {
+  margin: 1.75rem 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.article-body p {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+  line-height: 1.65;
+}
+
+.tldr {
+  margin-top: 2.25rem;
+  padding: 1.15rem 1.25rem 1.2rem;
+  background: var(--bg-soft);
+  border-left: 1px solid var(--border);
+}
+
+.tldr h2 {
+  margin-top: 0;
+}
+
+.tldr ul {
+  margin: 0;
+  padding: 0 0 0 1.15rem;
+  font-size: 1.15rem;
+  line-height: 1.65;
+}
+
+.tldr li + li {
+  margin-top: 0.45rem;
+}
+
+.share-figure {
+  margin: 1.5rem 0 1.75rem;
+}
+
+.share-figure figcaption {
+  margin-bottom: 0.55rem;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+
+.share-track {
+  display: flex;
+  min-height: 3.4rem;
+  overflow: hidden;
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.share-eng,
+.share-design {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.share-eng {
+  width: 80%;
+  align-items: flex-start;
+  padding-inline: 0.75rem;
+  background: var(--text);
+  color: var(--bg);
+}
+
+.share-design {
+  width: 20%;
+  align-items: center;
+  padding-inline: 0.25rem;
+  text-align: center;
+  background: var(--pill-bg);
+  color: var(--text);
+}
+
+.share-value {
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.roadmap {
+  list-style: none;
+  margin: 1.5rem 0 0.5rem;
+  padding: 0;
+}
+
+.roadmap li {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  gap: 0.75rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.roadmap li:last-child {
+  border-bottom: 1px solid var(--border);
+}
+
+.roadmap-step {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: var(--text-subtle);
+}
+
+.roadmap strong {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+}
+
+.roadmap span {
   color: var(--text-muted);
 }
 

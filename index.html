@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap"
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -27,7 +27,7 @@
     <nav class="site-nav" aria-label="Primary">
       <ul id="nav-menu" class="nav-links">
         <li><a href="#writing" data-nav="writing">Articles</a></li>
-        <li><a href="#highlights" data-nav="highlights">Projects</a></li>
+        <li><a href="#experiments" data-nav="experiments">Experiments</a></li>
         <li><a href="Resume-Jeff-Ong.md" download="Jeff-Ong-Resume.md">Resume</a></li>
       </ul>
       <button class="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle navigation">
@@ -51,8 +51,7 @@
         </p>
         <div class="intro-bio">
           <p>
-            Shipping production software that makes creative work faster,
-            from prototype through launch.
+            Engineering the experience. AI at build time. Trust at runtime.
           </p>
         </div>
         <div class="intro-contact">
@@ -159,10 +158,21 @@
 
       <article class="project">
         <div class="project-meta">
+          <span class="pill">Experience</span>
+          <span class="pill">Engineering</span>
+        </div>
+        <h3 class="project-title"><a href="articles/the-experience-engineer/">The Experience Engineer</a></h3>
+        <time class="project-date" datetime="2026-10-30">October 30, 2026</time>
+        <p class="project-desc">Nothing is forever. We have to acknowledge that AI has brought irreversible changes to the world, good and bad. Our job as a software engineer has to change, because our job has changed.</p>
+      </article>
+
+      <article class="project">
+        <div class="project-meta">
           <span class="pill">AI Agents</span>
           <span class="pill">Medium</span>
         </div>
         <h3 class="project-title"><a href="https://medium.com/@jeff-ong/we-dont-always-need-an-ai-agent-e49e0ceffc82" target="_blank" rel="noopener noreferrer">We don't always need an AI Agent</a></h3>
+        <time class="project-date" datetime="2026-06-09">June 9, 2026</time>
         <p class="project-desc">The agent problem nobody talks about — why serious workflows benefit from decomposing
           monolithic agents into small, inspectable DAG steps you can version, audit, and re-run independently.</p>
       </article>
@@ -173,59 +183,35 @@
           <span class="pill">DEV Community</span>
         </div>
         <h3 class="project-title"><a href="https://dev.to/jam3/modular-solution-for-typeahead-feature-3mh3" target="_blank" rel="noopener noreferrer">Modular Solution for Typeahead Feature</a></h3>
+        <time class="project-date" datetime="2020-12-10">December 10, 2020</time>
         <p class="project-desc">A decoupled typeahead engine built on ternary search trees — O(log n) prefix search
           without HTTP round-trips, packaged as an npm module developers can run on the front-end or behind a cached
           service.</p>
       </article>
     </section>
 
-    <section id="highlights" class="section" data-section="highlights">
-      <h2 class="section-display">Projects.</h2>
+    <section id="experiments" class="section" data-section="experiments">
+      <h2 class="section-display">Experiments.</h2>
 
       <article class="project">
         <div class="project-meta">
-          <span class="pill">Orchestration</span>
-          <span class="pill">Agentic</span>
+          <span class="pill">Status</span>
+          <span class="pill">Dashboard</span>
         </div>
-        <h3 class="project-title"><a href="https://arcpx.com/" target="_blank" rel="noopener noreferrer">ARCPX</a></h3>
-        <p class="project-desc">ARCPX is a modular agentic platform where users compose agents to fit their workflow —
-          an asynchronous DAG engine, configurable nodes, and a persistent memory layer. As founding engineer, I own the
-          full lifecycle from technical discovery and system design through production deployment on cloud
-          infrastructure.</p>
+        <h3 class="project-title"><a href="https://jeff-ong.github.io/wut-now/" target="_blank" rel="noopener noreferrer">AI Availability</a></h3>
+        <p class="project-desc">A public dashboard of AI vendor and cloud status — Claude, Cursor, OpenAI, Gemini,
+          Copilot, plus AWS, Azure, GCP, and Cloudflare. The page is the experiment. The aggregator stays small and
+          deploys on its own.</p>
       </article>
 
       <article class="project">
         <div class="project-meta">
-          <span class="pill">AI / Agentic</span>
-          <span class="pill">AWS</span>
+          <span class="pill">MCP</span>
+          <span class="pill">Reasoning</span>
         </div>
-        <h3 class="project-title">GraphRAG knowledge systems</h3>
-        <p class="project-desc">Built enterprise agentic applications on AWS with a hybrid retrieval stack — vector
-          search paired with a custom knowledge graph over unstructured data. The architecture improved response
-          accuracy by 20% over vector-only baselines and gave the system a real-time, context-aware knowledge layer
-          suitable for production workloads.</p>
-      </article>
-
-      <article class="project">
-        <div class="project-meta">
-          <span class="pill">Platform</span>
-          <span class="pill">Meta</span>
-        </div>
-        <h3 class="project-title">WhatsApp.com</h3>
-        <p class="project-desc">Re-engineered Meta's content management infrastructure, spearheading the migration of
-          complex localized datasets from legacy systems. This architectural overhaul established a scalable foundation
-          for global platform development and multi-region deployment across WhatsApp.com and related properties.</p>
-      </article>
-
-      <article class="project">
-        <div class="project-meta">
-          <span class="pill">Robotics</span>
-          <span class="pill">AWS re:Invent</span>
-        </div>
-        <h3 class="project-title">Humanoid Robot</h3>
-        <p class="project-desc">Spearheaded technical development for a humanoid robot featured on stage at AWS
-          re:Invent 2023 — integrating real-time perception, orchestration, and on-device inference into a live demo
-          environment built for a global audience.</p>
+        <h3 class="project-title"><a href="https://github.com/jeff-ong/thought-graph-mcp" target="_blank" rel="noopener noreferrer">Thought Graph</a></h3>
+        <p class="project-desc">A local MCP server that makes a model decompose a problem into a graph of small
+          reasoning steps, logs the path, and renders it so any step can be inspected and regenerated.</p>
       </article>
     </section>
 
@@ -255,7 +241,7 @@
   <footer class="site-footer">
     <p class="footer-links">
       <a href="https://linkedin.com/in/jeff-ong" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-      · <a href="https://github.com/arcpx-eng" target="_blank" rel="noopener noreferrer">GitHub</a>
+      · <a href="https://github.com/jeff-ong" target="_blank" rel="noopener noreferrer">GitHub</a>
     </p>
     <p>Designed &amp; built by Jeff Ong · © 2026</p>
   </footer>
