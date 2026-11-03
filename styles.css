@@ -869,6 +869,10 @@ body:has(.cookie-banner:not([hidden])) {
     display: none;
   }
 
+  .work-tile-name {
+    font-size: 1.35rem;
+  }
+
   .cookie-banner {
     flex-direction: column;
     align-items: stretch;
