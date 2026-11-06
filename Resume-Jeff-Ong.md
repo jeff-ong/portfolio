@@ -1,100 +1,69 @@
-# JEFF (BOON KEAT) ONG
+# Jeff Ong
 
-[LinkedIn](linkedin.com/in/jeff-ong) · [GitHub (jeff-ong)](https://github.com/jeff-ong) · [GitHub (arcpx-eng)](https://github.com/arcpx-eng) · [jeff-ong.com](https://jeff-ong.com) · [arcpx.com](https://arcpx.com) · Toronto, ON
+Principal Software Developer – Toronto, Canada
 
----
-
-## ABOUT
-
-Principal Software Developer with a background in computer science and marketing communications, specializing in AI-powered products and cloud-native systems. Ten years of experience shipping production agentic applications, RAG architectures, and global web platforms—from technical discovery through launch.
+[jeff-ong.com](https://jeff-ong.com) · [arcpx.com](https://arcpx.com) · [jeff-ong@outlook.com](mailto:jeff-ong@outlook.com)
 
 ---
 
-## KEY HIGHLIGHTS
+## Profile
 
-- Improved agentic application accuracy by 20% by implementing GraphRAG—researching and building a knowledge graph over unstructured data to give conversational LLM systems a more reliable, context-aware retrieval layer.
-- Built a modular agentic platform at [ARCPX](https://arcpx.com/) where users compose custom workflows via an asynchronous DAG engine, configurable nodes, and a persistent memory system.
-- Led development of an autonomous ETL data pipeline at Amazon that ingests unstructured data and optimizes vector embeddings for semantic retrieval.
-- Built the cloud-native software stack for a humanoid robot demo at AWS re:Invent 2023 using S3, Lambda, Step Functions, and Bedrock.
-- Directed CMS development at Meta and migrated localized datasets from legacy systems, establishing a scalable foundation for global platform development.
+I am a Software Developer with a background in engineering and marketing, focused on developing solutions with compelling user experiences and meaningful impact. I am experienced in building pipelines that bridge technical solutions with business opportunities, defining scopes, identifying value, aligning key stakeholders, and bringing products to users.
 
 ---
 
-## EXPERIENCE
+## Experience
 
-### Founding Engineer | [ARCPX](https://arcpx.com/)
-*Present*
+### Jam3 -> Monks | Principal Software Developer
+*2025 - Present*
 
-- Building [ARCPX](https://arcpx.com/) — a modular agentic platform for composing AI-powered workflows—from system design and full-stack development through production deployment on cloud infrastructure.
+- Fine-tune LoRA weights to generate creative assets for marketing campaigns.
+- Design and develop a serverless architecture to streamline CI/CD and SDLC processes.
+- Lead a team of full-stack developers to build internal tooling, define ontologies, and develop POCs for new business opportunities.
+- Create and maintain technical design documentation and architectural diagrams.
+- Automate context-engineering agents to improve observability by 30%.
 
-### Principal Software Developer | Monks *(Amazon, Meta clients)*
-*November 2018 – Present*
+### Amazon | Principal Software Developer
+*2024 - 2025*
 
-- Developed and shipped production-grade agentic applications in Python at scale.
-- Reduced LLM latency and improved accuracy by 20% through context-window optimization and prompt refinement.
-- Optimized CI/CD pipelines by parallelizing application deployments across environments.
-- Researched and built knowledge graph retrieval systems, improving RAG accuracy and retrieval efficiency.
-- Hardened agentic applications with exponential backoff, retry logic, and pre-trained LLM guardrail services.
-- Managed cloud infrastructure using AWS CDK and CloudFormation.
-- Contributed to global-scale web properties including WhatsApp.com, about.meta.com, and projectaria.com at Meta.
+- Organized workshops with clients to analyze user flows, identify gaps, and define problem statements.
+- Automated the brand review and approval system to enforce strict compliance and improve efficiency.
+- Supervised a team of data scientists and software engineers to develop a knowledge-base layer.
+- Guided cross-functional teams to achieve KPIs and business metrics.
 
-### UX Design Consultant (Contract) | Anomaly
-*May 2024 – September 2024*
+### Meta | Senior Software Developer
+*2018 - 2024*
 
-- Launched a Telegram mini app.
-- Designed user journeys to improve engagement.
-- Built a UI component library for rapid prototyping.
+- Partnered with the WhatsApp.com engineering team to overhaul software infrastructure and automate the migration process to increase productivity and reduce costs.
+- Designed a CMS to streamline site reliability and content management processes.
+- Developed an asset management platform to improve brand communication.
+- Improved permission management with a custom role-based access control extension.
 
-### Front-End Engineer (Contract) | MirrorMe3D
-*February 2019 – October 2023*
+### [Contract] Anomaly Games | UX Consultant
+*2024 - 2025*
 
-- Developed a 3D scan analysis application for remote medical monitoring and diagnostics.
-- Built interactive WebGL tools for analyzing pre- and post-operative facial 3D scans with advanced visualization and data-driven insights.
+- Supervised end-to-end UX/UI development for a prediction market platform, defined user journeys, and ensured high usability.
 
-### Assistant Instructor | Trilogy Education
-*May 2018 – October 2018*
+### [Contract] MirrorMe3D | UI Engineer
+*2024 - 2025*
 
-- Tutored students in web development, data structures, and algorithms.
-
-### Web Developer | Cotton Candy
-*May 2018 – October 2018*
-
-- Developed Shopify e-commerce themes and plug-ins.
-- Awarded a long-term RFP to manage an e-commerce platform with an integrated brand experience.
-
-### UI Developer & Designer | Dig Insights
-*March 2017 – May 2018*
-
-- Designed and developed data analysis platforms.
-- Shipped scalable applications for sampling and analyzing user data.
-
-### Front-End Developer | AutoTrader
-*February 2015 – March 2017*
-
-- Developed e-commerce websites and CMS systems.
+- Designed and developed a WebGL 3D analysis platform to manage pre-operative facial scans.
+- Developed a design system from scratch to handle special use cases for clinical operations.
 
 ---
 
-## CERTIFICATION
+## Skills
 
-**AWS Certified AI Practitioner**  
-Covers artificial intelligence (AI), machine learning (ML), and generative AI concepts.
+**ML:** LoRA Training, LLMOps, Agent Orchestration and Evaluation, Semantic Search, Vectorization
+
+**Front-end:** Atomic System Design, Composition, Design System, Iconography
+
+**Back-end:** AWS, GCP, Docker Containerization, SQL, Postgres, Cloud Computing, Knowledge Graph
+
+**Languages:** Python, TypeScript, JavaScript, Cypher, Node.js, Go
 
 ---
 
-## EDUCATION
+## Education
 
-**Computer Science** | Ryerson (TMU) University · 2018  
-Java, Unix, C/C++, data structures and algorithms, object-oriented design.
-
-**UI Design** | BrainStation · 2017  
-Typography, Sketch, prototyping, visual and interaction design.
-
-**UX Design** | George Brown College · 2017  
-Information architecture, usability testing, UX strategy and research.
-
-**Media Communications** | Humber College · 2014  
-Video, audio, and photographic production; press releases, brochures, and communications design.
-
-**Sound Engineering** | RAC · 2011  
-Sound and music production.
+Media Communications - Humber College - 2014 | Computer Application Programming - TMU - 2019 | AWS Certified AI Practitioner - 2025

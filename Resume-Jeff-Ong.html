@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeff Ong — Resume</title>
+  <style>
+    :root {
+      --text: #111;
+      --muted: #333;
+      --rule: #111;
+      --page: 8.5in;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: #e8e8e8;
+      font-family: "Times New Roman", Times, Georgia, serif;
+      font-size: 10.5pt;
+      line-height: 1.35;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      width: min(100%, var(--page));
+      min-height: 11in;
+      margin: 1.5rem auto;
+      padding: 0.55in 0.65in;
+      background: #fff;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    h1 {
+      margin: 0 0 0.2rem;
+      font-size: 22pt;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .contact {
+      margin: 0 0 0.85rem;
+      text-align: center;
+      font-size: 9.5pt;
+      color: var(--muted);
+    }
+
+    .contact a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .headline {
+      margin: 0 0 0.2rem;
+      text-align: center;
+      font-size: 11pt;
+    }
+
+    .summary {
+      margin: 0;
+      text-align: left;
+    }
+
+    section {
+      margin: 0 0 0.75rem;
+    }
+
+    .section-title {
+      margin: 0 0 0.45rem;
+      padding-bottom: 0.15rem;
+      font-size: 11pt;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1.5px solid var(--rule);
+    }
+
+    .job,
+    .edu,
+    .project {
+      margin: 0 0 0.55rem;
+    }
+
+    .job:last-child,
+    .edu:last-child,
+    .project:last-child {
+      margin-bottom: 0;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+    }
+
+    .org {
+      font-weight: 700;
+    }
+
+    .dates {
+      flex-shrink: 0;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .role {
+      margin: 0.05rem 0 0.2rem;
+      font-weight: 700;
+      font-style: italic;
+    }
+
+    .meta {
+      margin: 0.05rem 0 0.2rem;
+      color: var(--muted);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+
+    li {
+      margin: 0 0 0.18rem;
+    }
+
+    li::marker {
+      font-size: 0.85em;
+    }
+
+    .skills p {
+      margin: 0 0 0.25rem;
+    }
+
+    .skills p:last-child {
+      margin-bottom: 0;
+    }
+
+    .skills strong {
+      font-weight: 700;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .page {
+        width: auto;
+        min-height: auto;
+        margin: 0;
+        padding: 0.45in 0.55in;
+        box-shadow: none;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <h1>Jeff Ong</h1>
+    <p class="headline">Principal Software Developer – Toronto, Canada</p>
+    <p class="contact">
+      <a href="https://jeff-ong.com">jeff-ong.com</a>
+      · <a href="https://arcpx.com">arcpx.com</a>
+      · <a href="mailto:jeff-ong@outlook.com">jeff-ong@outlook.com</a>
+    </p>
+
+    <section>
+      <h2 class="section-title">Profile</h2>
+      <p class="summary">
+        I am a Software Developer with a background in engineering and marketing, focused on developing solutions
+        with compelling user experiences and meaningful impact. I am experienced in building pipelines that bridge
+        technical solutions with business opportunities, defining scopes, identifying value, aligning key stakeholders, and
+        bringing products to users.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="section-title">Experience</h2>
+
+      <article class="job">
+        <div class="row">
+          <span class="org">Jam3 -&gt; Monks</span>
+          <span class="dates">2025 - Present</span>
+        </div>
+        <p class="role">Principal Software Developer</p>
+        <ul>
+          <li>Fine-tune LoRA weights to generate creative assets for marketing campaigns.</li>
+          <li>Design and develop a serverless architecture to streamline CI/CD and SDLC processes.</li>
+          <li>Lead a team of full-stack developers to build internal tooling, define ontologies, and develop POCs for new business opportunities.</li>
+          <li>Create and maintain technical design documentation and architectural diagrams.</li>
+          <li>Automate context-engineering agents to improve observability by 30%.</li>
+        </ul>
+      </article>
+
+      <article class="job">
+        <div class="row">
+          <span class="org">Amazon</span>
+          <span class="dates">2024 - 2025</span>
+        </div>
+        <p class="role">Principal Software Developer</p>
+        <ul>
+          <li>Organized workshops with clients to analyze user flows, identify gaps, and define problem statements.</li>
+          <li>Automated the brand review and approval system to enforce strict compliance and improve efficiency.</li>
+          <li>Supervised a team of data scientists and software engineers to develop a knowledge-base layer.</li>
+          <li>Guided cross-functional teams to achieve KPIs and business metrics.</li>
+        </ul>
+      </article>
+
+      <article class="job">
+        <div class="row">
+          <span class="org">Meta</span>
+          <span class="dates">2018 - 2024</span>
+        </div>
+        <p class="role">Senior Software Developer</p>
+        <ul>
+          <li>Partnered with the WhatsApp.com engineering team to overhaul software infrastructure and automate the migration process to increase productivity and reduce costs.</li>
+          <li>Designed a CMS to streamline site reliability and content management processes.</li>
+          <li>Developed an asset management platform to improve brand communication.</li>
+          <li>Improved permission management with a custom role-based access control extension.</li>
+        </ul>
+      </article>
+
+      <article class="job">
+        <div class="row">
+          <span class="org">[Contract] Anomaly Games</span>
+          <span class="dates">2024 - 2025</span>
+        </div>
+        <p class="role">UX Consultant</p>
+        <ul>
+          <li>Supervised end-to-end UX/UI development for a prediction market platform, defined user journeys, and ensured high usability.</li>
+        </ul>
+      </article>
+
+      <article class="job">
+        <div class="row">
+          <span class="org">[Contract] MirrorMe3D</span>
+          <span class="dates">2024 - 2025</span>
+        </div>
+        <p class="role">UI Engineer</p>
+        <ul>
+          <li>Designed and developed a WebGL 3D analysis platform to manage pre-operative facial scans.</li>
+          <li>Developed a design system from scratch to handle special use cases for clinical operations.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="skills">
+      <h2 class="section-title">Skills</h2>
+      <p><strong>ML:</strong> LoRA Training, LLMOps, Agent Orchestration and Evaluation, Semantic Search, Vectorization</p>
+      <p><strong>Front-end:</strong> Atomic System Design, Composition, Design System, Iconography</p>
+      <p><strong>Back-end:</strong> AWS, GCP, Docker Containerization, SQL, Postgres, Cloud Computing, Knowledge Graph</p>
+      <p><strong>Languages:</strong> Python, TypeScript, JavaScript, Cypher, Node.js, Go</p>
+    </section>
+
+    <section>
+      <h2 class="section-title">Education</h2>
+      <p class="summary">Media Communications - Humber College - 2014 | Computer Application Programming - TMU - 2019 | AWS Certified AI Practitioner - 2025</p>
+    </section>
+  </main>
+</body>
+
+</html>
