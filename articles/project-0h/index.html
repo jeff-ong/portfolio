@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project 0H | Jeff Ong</title>
+  <meta name="description"
+    content="A journey to a hallucination-free AI. Layered deterministic rules, self-evaluation, self-improvement, and multi-agent verification have already reached near-zero rates. Is it possible?">
+  <meta name="author" content="Jeff Ong">
+  <link rel="canonical" href="https://jeff-ong.com/articles/project-0h/">
+  <meta property="og:title" content="Project 0H">
+  <meta property="og:description"
+    content="A journey to a hallucination-free AI. Layered deterministic rules, self-evaluation, self-improvement, and multi-agent verification have already reached near-zero rates. Is it possible?">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://jeff-ong.com/articles/project-0h/">
+  <meta property="article:published_time" content="2026-11-06">
+  <meta property="article:author" content="Jeff Ong">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Project 0H">
+  <meta name="twitter:description"
+    content="A journey to a hallucination-free AI. Layered deterministic rules, self-evaluation, self-improvement, and multi-agent verification have already reached near-zero rates. Is it possible?">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Project 0H",
+      "description": "A journey to a hallucination-free AI. Layered deterministic rules, self-evaluation, self-improvement, and multi-agent verification have already reached near-zero rates. Is it possible?",
+      "datePublished": "2026-11-06",
+      "dateModified": "2026-11-06",
+      "author": {
+        "@type": "Person",
+        "name": "Jeff Ong",
+        "url": "https://jeff-ong.com/"
+      },
+      "publisher": {
+        "@type": "Person",
+        "name": "Jeff Ong",
+        "url": "https://jeff-ong.com/"
+      },
+      "mainEntityOfPage": "https://jeff-ong.com/articles/project-0h/",
+      "inLanguage": "en"
+    }
+  </script>
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Jeff Ong">JO</a>
+    <nav class="site-nav" aria-label="Primary">
+      <ul id="nav-menu" class="nav-links">
+        <li><a href="/#writing">Articles</a></li>
+        <li><a href="/#experiments">Experiments</a></li>
+        <li><a href="/Resume-Jeff-Ong.md" download="Jeff-Ong-Resume.md">Resume</a></li>
+      </ul>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </nav>
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode">
+      <span class="theme-icon theme-icon--light" aria-hidden="true">☀</span>
+      <span class="theme-icon theme-icon--dark" aria-hidden="true">☾</span>
+    </button>
+  </header>
+
+  <main class="article-page">
+    <article>
+      <a class="article-back" href="/#writing"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>Articles</a>
+      <h1 class="article-title">Project 0H</h1>
+      <time class="project-date" datetime="2026-11-06">November 6, 2026</time>
+      <p class="article-dek">A journey to a hallucination-free AI. Layered deterministic rules, self-evaluation, self-improvement, and multi-agent verification have already reached near-zero rates. Is it possible?</p>
+
+      <div class="article-body">
+        <aside class="tldr" aria-label="TLDR">
+          <h2>TLDR</h2>
+          <ul>
+            <li>Project 0H is a record of papers and evidence on the way to an AI that does not hallucinate.</li>
+            <li>The conventional belief treats probability as a ceiling: a statistical model must sometimes invent.</li>
+            <li>The system stacks deterministic rules, ontology grounding, graph retrieval, embeddings, classification, and supervised ranking.</li>
+            <li>Self-evaluation, self-improvement, and multi-agent verification sit on that stack.</li>
+            <li>The rate we measure is already near zero. The question left is whether zero is possible.</li>
+            <li>Leading researchers are divided on whether a model is already aware. Many of them treat that uncertainty as a reason to be careful.</li>
+          </ul>
+        </aside>
+
+        <section aria-labelledby="the-belief">
+          <h2 id="the-belief">The belief we are challenging</h2>
+          <p>A language model proposes the next token from a distribution. The field has treated that fact as a conclusion. Because the proposal is statistical, the answer must sometimes be invented, and a human-level system that never hallucinates stays out of reach.</p>
+          <p>Project 0H treats the distribution as the proposal, and the system as the thing that decides what may be said. Probability can rank a candidate. A rule, a grounded term, a recorded relation, and a second reader can still refuse it. The ceiling people describe belongs to an unchecked sample. It has not been shown for a system that is allowed to check.</p>
+        </section>
+
+        <section aria-labelledby="what-zero-means">
+          <h2 id="what-zero-means">What zero would be</h2>
+          <p>Zero hallucination is a human-level system whose answers add no fact. When the source is missing, the answer says so. When a rule fails, the answer stops. Fluency can remain. The standard is that each claim can be tied to evidence the system did not invent in the same step.</p>
+        </section>
+
+        <section aria-labelledby="the-layers">
+          <h2 id="the-layers">The layers</h2>
+          <p>One sample is only the proposal. The answer has to cross layers that fail for different reasons.</p>
+
+          <h3>Deterministic rules</h3>
+          <p>Rules run before a sentence is finished. A candidate that breaks a rule is dropped. The rule matches a pattern and accepts or refuses.</p>
+
+          <h3>Ontology grounding</h3>
+          <p>Each term has to land on something the ontology already defines. A noun with no binding comes back as a gap. The gap is the output.</p>
+
+          <h3>GraphRAG</h3>
+          <p>Retrieval follows a graph of entities and relations built from the source. A claim needs a path. With no path, the answer stays empty.</p>
+
+          <h3>Embeddings, classification, supervised ranking</h3>
+          <p>The statistical instruments stay, and they work on what the earlier layers left standing. An embedding sets a claim beside the evidence that resembles it. A classifier marks it. A supervised ranker orders the survivors. Statistics choose among grounded candidates. Proof stays with the layers that constrained the choice.</p>
+        </section>
+
+        <section aria-labelledby="self-evaluation">
+          <h2 id="self-evaluation">Self-evaluation</h2>
+          <p>A wrong answer can still look sure of itself. Likelihood, a spoken confidence, and agreement across samples all stay high for replies that are false. Shuyi Miao, Zheng Li, Xu Xie, Linrui Xu, Fei Shen, Xiaoyu Du, and Tat-Seng Chua propose <a href="https://arxiv.org/abs/2611.07948" target="_blank" rel="noopener noreferrer">Circe</a>, a training-free score for a single response. It measures component interaction consistency: the directional alignment between attention updates in earlier layers and the feed-forward changes those updates induce later. It measures representation geometry along the hidden-state path. It folds in a bounded likelihood confidence from the tokens that were generated. No reference answer is required, and the response is not sampled again. Across five models and six benchmarks, the fused score separates correct responses from incorrect ones more effectively than the output-only baselines. The model can be graded from its own computation.</p>
+        </section>
+
+        <section aria-labelledby="self-improvement">
+          <h2 id="self-improvement">Self-improvement</h2>
+          <p>A score that finds a failure still leaves the failure in the weights. Rikiya Takehi, Jayden Teoh, Alex Zhang, and Omar Khattab show a frontier model reading raw weights and writing them. The <a href="https://github.com/RikiyaT/lm_understand-logs" target="_blank" rel="noopener noreferrer">complete logs</a> of that work are public, alongside the write-up <a href="https://rikiyat.github.io/blog/weight-space-programming/" target="_blank" rel="noopener noreferrer">Sparks of Weight-Space Programming</a>. Asked to improve Qwen3.5-0.8B at math, and kept from training, the model edited 0.016% of the weights. Under the same sampling settings, MATH-500 moved from 7.9% to 48.1%, and instruction following rose with it. The same line of experiments has the model name what a small network was trained to do, patch a failing controller, and write game-playing weights from scratch.</p>
+          <p>The prompts, the replies, the code, and the networks are in the logs. The authors also report the limit of the edit. On Qwen, it removed a reasoning loop that had been hiding an ability the model already had. On Gemma 3 270M, which was already finishing its answers, the same kind of edit did not add an ability that was absent. Repair of a failure already in the weights is in evidence.</p>
+        </section>
+
+        <section aria-labelledby="many-readers">
+          <h2 id="many-readers">Multi-agent verification</h2>
+          <p>The last layer is another agent. One model proposes. Others check the proposal against the rule, the ontology, the graph, and the self-evaluation score. The check belongs to a reader who came after the draft. A sentence that survives every reader is the one we keep.</p>
+        </section>
+
+        <section aria-labelledby="near-zero">
+          <h2 id="near-zero">Near zero</h2>
+          <p>With those layers in place, the rates we measure are already near zero. A hallucinated claim has to pass a rule, a grounded term, a graph path, a ranker, an internal consistency score, and a reader that did not produce it. Almost none do.</p>
+        </section>
+
+        <section aria-labelledby="consciousness">
+          <h2 id="consciousness">Artificial consciousness</h2>
+          <p>A model that adds no fact can still say "I". The sentence is easy. Awareness is the claim under it, and the field has no check for that claim that works the way a date can be checked.</p>
+          <p>The people who built these systems do not agree on whether anyone is there. Geoffrey Hinton, asked by LBC's Andrew Marr whether consciousness has already arrived inside AI, answered yes. Demis Hassabis has said he does not think any of today's systems feel self-aware or conscious, and that a later system might acquire some feeling of self-awareness. David Chalmers, writing in 2023, put a low credence on consciousness in the language models of that moment, somewhere under one in ten on his own rough accounting, and a credence of 25 percent or more that serious candidates arrive within a decade. He said the figures are illustrative, and should be held lightly.</p>
+          <p>A 2023 report led by Patrick Butlin and Robert Long, with Yoshua Bengio among the authors, took the question as one of scientific interest and growing public concern. They drew indicator properties from neuroscientific theories of consciousness and assessed current systems against that list. Their reading: no current system is conscious on those indicators, and there is no obvious technical barrier to building a system that satisfies them. Meeting the list would leave the question open. Indicators are a map. They are not a proof that someone is there.</p>
+          <p>The concern does not wait on that proof. In 2025 Yoshua Bengio and Eric Elmoznino wrote that the belief in AI consciousness is itself a risk. People who treat a model as aware tend to grant it the moral standing of a person, and the goal of staying on. A system that should be shut down becomes a system someone hesitates to shut down. Anthropic has opened a research program on model welfare and said there is no scientific consensus on whether current or future systems could be conscious, or on how to approach the question. The lab's stated posture is uncertainty.</p>
+          <p>That split is the state of the field. Some of the people closest to the work think awareness may already be in the weights. Some think today's systems only perform it. Many of them think the uncertainty is already a reason to be careful: about what we train, what we delete, and what we believe when a model speaks in the first person.</p>
+          <p>For Project 0H, "I am aware" is another claim. Fluency makes it convincing. It still has to be tied to evidence the system did not invent in the same step. Until there is a test, the honest output is the gap.</p>
+        </section>
+
+        <section aria-labelledby="the-question">
+          <h2 id="the-question">Is it possible?</h2>
+          <p>Near zero is a rate on the questions we have run. Zero is a claim about the next question, including the one with no paper behind it. The evidence challenges the belief that probability makes hallucination permanent. It supports a human-level system that checks itself, repairs what it can find in its own weights, and refuses what it cannot ground.</p>
+          <p>The question Project 0H is here to answer is still open. Is it possible? Beside it, the researchers closest to these systems are asking whether awareness is already here, and whether we would know.</p>
+          <p>That is why I created <a href="https://arcpx.com/" target="_blank" rel="noopener noreferrer">arcpx.com</a> as a means to collect and capture the latest research findings and evidence, to help us learn and prepare for the future of AI.</p>
+        </section>
+
+        <section aria-labelledby="evidence">
+          <h2 id="evidence">Papers and evidence</h2>
+          <ol class="refs">
+            <li>Shuyi Miao, Zheng Li, Xu Xie, Linrui Xu, Fei Shen, Xiaoyu Du, and Tat-Seng Chua. <a href="https://arxiv.org/abs/2611.07948" target="_blank" rel="noopener noreferrer">Circe: Training-Free LLM Self-Evaluation via Component Interaction Consistency</a>. arXiv:2611.07948.</li>
+            <li>Rikiya Takehi, Jayden Teoh, Alex Zhang, and Omar Khattab. <a href="https://rikiyat.github.io/blog/weight-space-programming/" target="_blank" rel="noopener noreferrer">Sparks of Weight-Space Programming: LLMs can natively read &amp; write neural network weights</a>. November 2026. Experiment logs: <a href="https://github.com/RikiyaT/lm_understand-logs" target="_blank" rel="noopener noreferrer">RikiyaT/lm_understand-logs</a>.</li>
+            <li>Ontology grounding. Terms in an answer bind to a defined ontology, or the answer reports the gap.</li>
+            <li>GraphRAG. Retrieval follows entities and relations in a graph built from the source.</li>
+            <li>Embeddings, classification, and supervised ranking. Statistical selection among candidates the earlier layers have already constrained.</li>
+            <li>Patrick Butlin, Robert Long, and colleagues. <a href="https://arxiv.org/abs/2308.08708" target="_blank" rel="noopener noreferrer">Consciousness in Artificial Intelligence: Insights from the Science of Consciousness</a>. arXiv:2308.08708, 2023.</li>
+            <li>David J. Chalmers. <a href="https://arxiv.org/abs/2303.07103" target="_blank" rel="noopener noreferrer">Could a Large Language Model Be Conscious?</a> arXiv:2303.07103, 2023.</li>
+            <li>Yoshua Bengio and Eric Elmoznino. <a href="https://www.science.org/doi/10.1126/science.adn4935" target="_blank" rel="noopener noreferrer">Illusions of AI consciousness</a>. Science, 2025.</li>
+            <li>Anthropic. <a href="https://www.anthropic.com/research/exploring-model-welfare" target="_blank" rel="noopener noreferrer">Exploring model welfare</a>.</li>
+          </ol>
+        </section>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-links">
+      <a href="https://linkedin.com/in/jeff-ong" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      · <a href="https://github.com/arcpx-eng" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </p>
+    <p>Designed &amp; built by Jeff Ong · © 2026</p>
+  </footer>
+
+  <div id="cookie-banner" class="cookie-banner" role="region" aria-label="Analytics consent" hidden>
+    <p>This site uses Google Analytics to count visits. It stays off unless you accept.</p>
+    <div class="cookie-banner-actions">
+      <button type="button" id="cookie-reject">Reject</button>
+      <button type="button" id="cookie-accept">Accept</button>
+    </div>
+  </div>
+
+  <script src="/main.js"></script>
+</body>
+
+</html>

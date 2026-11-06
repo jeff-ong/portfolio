@@ -545,6 +545,7 @@ img.work-tile-logo {
   margin: 2.75rem 0 1rem;
   font-size: 1.35rem;
   letter-spacing: -0.02em;
+  scroll-margin-top: 5rem;
 }
 
 .article-body h3 {
@@ -578,6 +579,22 @@ img.work-tile-logo {
 
 .tldr li + li {
   margin-top: 0.45rem;
+}
+
+.refs {
+  margin: 0;
+  padding: 0 0 0 1.25rem;
+  font-size: 1.15rem;
+  line-height: 1.65;
+}
+
+.refs li + li {
+  margin-top: 0.85rem;
+}
+
+.article-body a {
+  font-weight: 600;
+  text-underline-offset: 3px;
 }
 
 .share-figure {
