@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inside the Model: The Core Engine | Jeff Ong</title>
+  <meta name="description"
+    content="How attention, SwiGLU, RoPE, and linear layers turn a token into a contextual vector that depends on its neighbors.">
+  <meta name="author" content="Jeff Ong">
+  <link rel="canonical" href="https://jeff-ong.com/articles/the-core-engine/">
+  <meta property="og:title" content="Inside the Model: The Core Engine">
+  <meta property="og:description"
+    content="How attention, SwiGLU, RoPE, and linear layers turn a token into a contextual vector that depends on its neighbors.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://jeff-ong.com/articles/the-core-engine/">
+  <meta property="article:published_time" content="2026-11-07">
+  <meta property="article:author" content="Jeff Ong">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Inside the Model: The Core Engine">
+  <meta name="twitter:description"
+    content="How attention, SwiGLU, RoPE, and linear layers turn a token into a contextual vector that depends on its neighbors.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Inside the Model: The Core Engine",
+      "description": "How attention, SwiGLU, RoPE, and linear layers turn a token into a contextual vector that depends on its neighbors.",
+      "datePublished": "2026-11-07",
+      "dateModified": "2026-11-07",
+      "author": {
+        "@type": "Person",
+        "name": "Jeff Ong",
+        "url": "https://jeff-ong.com/"
+      },
+      "publisher": {
+        "@type": "Person",
+        "name": "Jeff Ong",
+        "url": "https://jeff-ong.com/"
+      },
+      "mainEntityOfPage": "https://jeff-ong.com/articles/the-core-engine/",
+      "isPartOf": {
+        "@type": "CreativeWorkSeries",
+        "name": "Inside the Model"
+      },
+      "position": 1,
+      "inLanguage": "en"
+    }
+  </script>
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Jeff Ong">JO</a>
+    <nav class="site-nav" aria-label="Primary">
+      <ul id="nav-menu" class="nav-links">
+        <li><a href="/#writing">Articles</a></li>
+        <li><a href="/#experiments">Experiments</a></li>
+        <li><a href="/Resume-Jeff-Ong.md" download="Jeff-Ong-Resume.md">Resume</a></li>
+      </ul>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </nav>
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode">
+      <span class="theme-icon theme-icon--light" aria-hidden="true">☀</span>
+      <span class="theme-icon theme-icon--dark" aria-hidden="true">☾</span>
+    </button>
+  </header>
+
+  <main class="article-page">
+    <article>
+      <a class="article-back" href="/#writing"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>Articles</a>
+      <h1 class="article-title">Inside the Model: The Core Engine</h1>
+      <time class="project-date" datetime="2026-11-07">November 7, 2026</time>
+      <p class="article-dek">A token is a vector with no neighbors in it. Attention, RoPE, SwiGLU, and the linear layers are how a network puts the sentence into that vector.</p>
+      <nav class="series-links" aria-label="Series">Part 1 of 5. <a href="/articles/inside-the-model/">Previous: Introduction</a> · <a href="/articles/visual-control/">Next: Visual Control</a></nav>
+
+      <div class="article-body">
+        <aside class="tldr" aria-label="TLDR">
+          <h2>TLDR</h2>
+          <ul>
+            <li>A contextual representation is a vector that has been mixed with the other tokens in the sequence.</li>
+            <li>Linear layers are the learned mixing. Stacked with nothing between them, they collapse into one mix.</li>
+            <li>Attention builds a fresh mix for every token, weighted by how well a query matches each key.</li>
+            <li>RoPE rotates queries and keys by position, so the match depends on distance.</li>
+            <li>SwiGLU is the gated activation in the feed-forward block. It decides which features of the mix survive.</li>
+            <li>Each block adds its change onto the incoming vector. Context is the accumulation of those additions.</li>
+          </ul>
+        </aside>
+
+        <section aria-labelledby="no-context">
+          <h2 id="no-context">A vector with no context</h2>
+          <p>Text enters as a sequence of token ids. A token is a piece of a word, sometimes a whole word, sometimes a space and a prefix. An embedding table turns each id into a vector, a list of a few thousand numbers. The same id always starts from the same list. The token for bank is the same vector beside a river and beside a loan.</p>
+          <p>The block exists to make them different, using the tokens around them. That difference is the contextual representation. The vector stays the same length. The numbers in it now depend on the rest of the sequence.</p>
+          <p>A transformer stacks identical blocks. Each one reads the vectors the previous block wrote, and writes an update. Two sublayers do the writing. Attention moves information between positions. The feed-forward layer, with SwiGLU inside it, rewrites each position on its own.</p>
+        </section>
+
+        <section aria-labelledby="linear-layers">
+          <h2 id="linear-layers">Linear layers</h2>
+          <p>A linear layer is a matrix multiplication, plus a bias the model can learn.</p>
+          <p class="formula">y = Wx + b</p>
+          <p>W is a learned table. Each row asks the input vector one question, and the answer is a weighted sum of the input's numbers. A wide layer asks many questions at once. A narrow one compresses.</p>
+          <p>The projections that build queries, keys, and values are linear layers. So is the projection that mixes attention heads back together. So is the embedding. Most of the file size of a model is these matrices.</p>
+          <p>Stacked linear layers, with nothing between them, collapse. Two matrices in a row multiply into one matrix. Depth drawn that way is still a single mixing. The rest of the block exists so the next linear layer sees a vector a matrix on its own would not produce: a vector gated by a nonlinearity, or weighted by other tokens.</p>
+        </section>
+
+        <section aria-labelledby="attention">
+          <h2 id="attention">Attention</h2>
+          <p>Attention lets one position build a new vector from the values at other positions. The weights of that mix are computed from the tokens themselves.</p>
+          <p>Each position produces three vectors, through three linear layers. The query is what this position is looking for. The key is the label it offers. The value is the content it hands over if it is chosen.</p>
+          <p>The score between two positions is their dot product: large when the two vectors point the same way. Scores are divided by the square root of the key's length, so a long vector does not produce huge scores by default and flatten the softmax. Softmax turns a list of scores into positive weights that sum to one. The output is those weights applied to the values. That is the scaled dot-product attention in <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener noreferrer">Attention Is All You Need</a> (Vaswani et al., 2017).</p>
+          <p class="formula">Attention(Q, K, V) = softmax(QK<sup>T</sup> / √d<sub>k</sub>) V</p>
+          <p>The same operation runs in several heads. Each head has its own projections, so one head can track agreement, another a name and the pronoun that follows it, another a bracket that still needs to close. The heads are concatenated and passed through one more linear layer.</p>
+          <p>In a language model, a position may look at earlier positions only. The vector at that point is a summary of the sequence so far. The rule is the causal mask from the decoder in Vaswani et al., a pattern applied to the scores before the softmax. <a href="/articles/how-models-learn/">Part 3</a> trains against exactly this summary. Predict the next token from it.</p>
+          <p>The cost follows the mask. Every query is compared with every key it is allowed to see, so the work grows with the square of the sequence length. <a href="/articles/serving-the-model/">Part 5</a> is what you do about that cost when the model is answering one token at a time.</p>
+        </section>
+
+        <section aria-labelledby="rope">
+          <h2 id="rope">RoPE</h2>
+          <p>A bag of attention weights still has a gap. Nothing yet says whether a word stood before the verb or after it. The model needs position.</p>
+          <p><a href="https://arxiv.org/abs/2104.09864" target="_blank" rel="noopener noreferrer">Su et al. (2021)</a> write position into the query and the key by rotating them. This is rotary position embedding, RoPE. Take the numbers of a query two at a time. Each pair is a point in a plane. RoPE turns that point by an angle that grows with the token's index. A token at position m is turned by m times a base angle θ. The key at position n is turned by nθ.</p>
+          <p>The rotation is fixed. The original design has no learned weights in it. Early pairs spin quickly as the index grows. Later pairs spin slowly. A short-range pattern and a long-range pattern can each have a pair of dimensions that lines up for them.</p>
+          <p>After both vectors are rotated, their dot product depends on the gap m − n, and on the vectors themselves. Attention matches content, and it matches content at a distance. Swap two tokens and the distances change, so the mix changes, even though the embedding table gave each id the same start.</p>
+          <p>Because the signal lives in a rotation, a model can be stretched to sequences longer than the ones it trained on by rescaling those frequencies. The representation does not depend on a position vector that was only learned up to some maximum index.</p>
+        </section>
+
+        <section aria-labelledby="swiglu">
+          <h2 id="swiglu">SwiGLU</h2>
+          <p>Attention has mixed the neighbors in. The feed-forward layer then works at each position alone. This is where most of the parameters sit, and where the network gets a nonlinearity.</p>
+          <p><a href="https://arxiv.org/abs/2002.05202" target="_blank" rel="noopener noreferrer">Shazeer (2020)</a> defines SwiGLU, the gated form used in current language models. The gate is Swish: small negative numbers pass through in a smooth, reduced way, and large positive numbers pass almost unchanged. The gate and the values are two different linear projections of the same input. They are multiplied element by element. A third projection maps the result back to the width of the residual stream. <a href="https://arxiv.org/abs/2302.13971" target="_blank" rel="noopener noreferrer">Touvron et al. (2023)</a> use this block in LLaMA.</p>
+          <p class="formula">SwiGLU(x) = (SiLU(xW<sub>gate</sub>) ⊙ xW<sub>up</sub>) W<sub>down</sub></p>
+          <p>The multiplication is the selection. Where the gate is near zero, that feature is dropped. Where the gate is large, the feature passes. Attention selected tokens. SwiGLU selects features. <a href="/articles/scaling-with-experts/">Part 4</a> adds a third selection, over whole feed-forward experts, in this same slot.</p>
+          <p>Three matrices would cost more than the two-matrix feed-forward they replaced. Touvron et al. set the inner width to (2/3) × 4d, two thirds of the 4d width PaLM used, so the parameter count stays close. The gate is paid for by a narrower middle.</p>
+        </section>
+
+        <section aria-labelledby="one-block">
+          <h2 id="one-block">What one block writes</h2>
+          <p>Before attention, and again before the feed-forward, the vector is rescaled. <a href="https://arxiv.org/abs/1910.07467" target="_blank" rel="noopener noreferrer">Zhang and Sennrich (2019)</a> define RMSNorm: divide by the root mean square of the numbers, then multiply by a learned gain on each coordinate. Touvron et al. put that normalization on the input of each sublayer. A linear layer behaves more steadily when its input stays on a familiar scale.</p>
+          <p>Each sublayer adds its result onto the vector that entered it. The block writes a change, and the incoming representation stays available for the next layer. After a stack of blocks, the vector at a position is the original embedding plus every change the blocks decided to make.</p>
+          <p>That sum is the contextual representation. This token, given these neighbors, at these distances.</p>
+        </section>
+
+        <section aria-labelledby="takeaway">
+          <h2 id="takeaway">What to take with you</h2>
+          <p>Read a hidden state as a mixture. Linear layers propose it. Attention chooses the tokens that contribute, and RoPE makes that choice sensitive to order and distance. SwiGLU chooses the features that continue. The residual path is why a later layer can still see an early one.</p>
+          <p>When a model surprises you, the surprise is in those choices. A word changed meaning because attention weighted different neighbors, or because a gate opened a different feature. The rest of this series is what you do once a network can build that vector. Edit a scene, train the choices, skip most of the parameters, and serve the result on hardware you actually have.</p>
+        </section>
+
+        <section aria-labelledby="papers">
+          <h2 id="papers">Sources</h2>
+          <ol class="refs">
+            <li>Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Łukasz Kaiser, and Illia Polosukhin. <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener noreferrer">Attention Is All You Need</a>. arXiv:1706.03762, 2017.</li>
+            <li>Jianlin Su, Yu Lu, Shengfeng Pan, Ahmed Murtadha, Bo Wen, and Yunfeng Liu. <a href="https://arxiv.org/abs/2104.09864" target="_blank" rel="noopener noreferrer">RoFormer: Enhanced Transformer with Rotary Position Embedding</a>. arXiv:2104.09864, 2021.</li>
+            <li>Noam Shazeer. <a href="https://arxiv.org/abs/2002.05202" target="_blank" rel="noopener noreferrer">GLU Variants Improve Transformer</a>. arXiv:2002.05202, 2020.</li>
+            <li>Hugo Touvron and colleagues. <a href="https://arxiv.org/abs/2302.13971" target="_blank" rel="noopener noreferrer">LLaMA: Open and Efficient Foundation Language Models</a>. arXiv:2302.13971, 2023. RoPE, SwiGLU, and RMSNorm in one widely used block.</li>
+            <li>Biao Zhang and Rico Sennrich. <a href="https://arxiv.org/abs/1910.07467" target="_blank" rel="noopener noreferrer">Root Mean Square Layer Normalization</a>. arXiv:1910.07467, 2019.</li>
+          </ol>
+        </section>
+      </div>
+      <nav class="series-links" aria-label="Series">Part 1 of 5. <a href="/articles/inside-the-model/">Previous: Introduction</a> · <a href="/articles/visual-control/">Next: Visual Control</a></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-links">
+      <a href="https://linkedin.com/in/jeff-ong" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      · <a href="https://github.com/arcpx-eng" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </p>
+    <p>Designed &amp; built by Jeff Ong · © 2026</p>
+  </footer>
+
+  <div id="cookie-banner" class="cookie-banner" role="region" aria-label="Analytics consent" hidden>
+    <p>This site uses Google Analytics to count visits. It stays off unless you accept.</p>
+    <div class="cookie-banner-actions">
+      <button type="button" id="cookie-reject">Reject</button>
+      <button type="button" id="cookie-accept">Accept</button>
+    </div>
+  </div>
+
+  <script src="/main.js"></script>
+</body>
+
+</html>

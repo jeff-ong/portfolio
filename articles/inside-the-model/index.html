@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inside the Model | Jeff Ong</title>
+  <meta name="description"
+    content="A guide to the Inside the Model series. What each of the five parts covers, how they connect, and where to start.">
+  <meta name="author" content="Jeff Ong">
+  <link rel="canonical" href="https://jeff-ong.com/articles/inside-the-model/">
+  <meta property="og:title" content="Inside the Model">
+  <meta property="og:description"
+    content="A guide to the Inside the Model series. What each of the five parts covers, how they connect, and where to start.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://jeff-ong.com/articles/inside-the-model/">
+  <meta property="article:published_time" content="2026-11-07">
+  <meta property="article:author" content="Jeff Ong">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Inside the Model">
+  <meta name="twitter:description"
+    content="A guide to the Inside the Model series. What each of the five parts covers, how they connect, and where to start.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Inside the Model",
+      "description": "A guide to the Inside the Model series. What each of the five parts covers, how they connect, and where to start.",
+      "datePublished": "2026-11-07",
+      "dateModified": "2026-11-07",
+      "author": {
+        "@type": "Person",
+        "name": "Jeff Ong",
+        "url": "https://jeff-ong.com/"
+      },
+      "publisher": {
+        "@type": "Person",
+        "name": "Jeff Ong",
+        "url": "https://jeff-ong.com/"
+      },
+      "mainEntityOfPage": "https://jeff-ong.com/articles/inside-the-model/",
+      "isPartOf": {
+        "@type": "CreativeWorkSeries",
+        "name": "Inside the Model"
+      },
+      "inLanguage": "en"
+    }
+  </script>
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Jeff Ong">JO</a>
+    <nav class="site-nav" aria-label="Primary">
+      <ul id="nav-menu" class="nav-links">
+        <li><a href="/#writing">Articles</a></li>
+        <li><a href="/#experiments">Experiments</a></li>
+        <li><a href="/Resume-Jeff-Ong.md" download="Jeff-Ong-Resume.md">Resume</a></li>
+      </ul>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </nav>
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode">
+      <span class="theme-icon theme-icon--light" aria-hidden="true">☀</span>
+      <span class="theme-icon theme-icon--dark" aria-hidden="true">☾</span>
+    </button>
+  </header>
+
+  <main class="article-page">
+    <article>
+      <a class="article-back" href="/#writing"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>Articles</a>
+      <h1 class="article-title">Inside the Model</h1>
+      <time class="project-date" datetime="2026-11-07">November 7, 2026</time>
+      <p class="article-dek">A guide to the series. Five parts, from the vector a token becomes to the machine that has to serve it.</p>
+      <nav class="series-links" aria-label="Series">Introduction. <a href="/articles/the-core-engine/">Next: The Core Engine</a></nav>
+
+      <div class="article-body">
+        <aside class="tldr" aria-label="TLDR">
+          <h2>TLDR</h2>
+          <ul>
+            <li>The series follows one object, the representation a model builds, through five jobs.</li>
+            <li>Part 1 writes a token into a vector that depends on its neighbors.</li>
+            <li>Part 2 edits a scene in that kind of space and holds a chosen object still.</li>
+            <li>Part 3 trains the choices, first on raw data, then on which answer a person preferred.</li>
+            <li>Part 4 stores more parameters than a forward pass runs.</li>
+            <li>Part 5 makes decoding fast enough to serve, and fine-tunes the model on one GPU.</li>
+            <li>Read in order the first time. Each part links back to the idea it uses, and lists the papers for its claims.</li>
+          </ul>
+        </aside>
+
+        <section aria-labelledby="what-it-is">
+          <h2 id="what-it-is">What the series is</h2>
+          <p>A model is a stack of learned choices about numbers. This series walks those choices from the inside. The writing stays introductory, and it stays on the mechanism long enough that the name of a part matches a picture you can keep.</p>
+          <p>Each part stops at a result you can point at. A contextual vector. A controlled edit. A model trained on a preference. A forward pass that skips most of its own parameters. A model that answers on hardware you have.</p>
+          <p>The papers behind a claim sit at the bottom of the part that makes the claim. This page is the map between those parts.</p>
+        </section>
+
+        <section aria-labelledby="how-to-read">
+          <h2 id="how-to-read">How to read it</h2>
+          <p>Read straight through on a first pass. A later part uses a word an earlier part defined, and it links back when it does. Part 1 is the vocabulary the other four spend.</p>
+          <p>Open the part that matches the work in front of you when you already know the block. An edit, a training run, a model that no longer fits, a reply that is too slow. The part stands on its own once those links make sense.</p>
+          <p>The order below is the order the ideas depend on each other. The homepage lists them the same way, with this guide first.</p>
+        </section>
+
+        <section aria-labelledby="the-five">
+          <h2 id="the-five">The five parts</h2>
+          <ol class="roadmap">
+            <li>
+              <span class="roadmap-step">1</span>
+              <div>
+                <strong><a href="/articles/the-core-engine/">The Core Engine</a></strong>
+                <span>Attention, SwiGLU, RoPE, and linear layers. A token becomes a vector that depends on its neighbors.</span>
+              </div>
+            </li>
+            <li>
+              <span class="roadmap-step">2</span>
+              <div>
+                <strong><a href="/articles/visual-control/">Visual Control</a></strong>
+                <span>Stable Diffusion, SAM, latent blending, and inpainting. Change a scene and keep a chosen object still.</span>
+              </div>
+            </li>
+            <li>
+              <span class="roadmap-step">3</span>
+              <div>
+                <strong><a href="/articles/how-models-learn/">How Models Learn</a></strong>
+                <span>Next-token prediction and denoising learn from raw data. RLHF and DPO learn from a preference.</span>
+              </div>
+            </li>
+            <li>
+              <span class="roadmap-step">4</span>
+              <div>
+                <strong><a href="/articles/scaling-with-experts/">Scaling with Experts</a></strong>
+                <span>Mixture of experts, sparse routing, and the gating network. Store more parameters than a pass runs.</span>
+              </div>
+            </li>
+            <li>
+              <span class="roadmap-step">5</span>
+              <div>
+                <strong><a href="/articles/serving-the-model/">Serving the Model</a></strong>
+                <span>The KV cache and grouped-query attention make decoding fast enough to serve. LoRA and QLoRA fine-tune on one GPU.</span>
+              </div>
+            </li>
+          </ol>
+        </section>
+
+        <section aria-labelledby="thread">
+          <h2 id="thread">The thread</h2>
+          <p>The same move shows up under different names. In <a href="/articles/the-core-engine/">part 1</a>, attention selects tokens and SwiGLU selects features. In <a href="/articles/scaling-with-experts/">part 4</a>, a gate selects whole feed-forward experts in that same slot. Three selections, one idea: most of what the model could use is left quiet.</p>
+          <p><a href="/articles/how-models-learn/">Part 3</a> trains a diffusion model by learning to undo noise. The sampler in <a href="/articles/visual-control/">part 2</a> is that repair, started from a noisy latent and walked back toward an image. Editing a scene and training the model that paints it are the same loop, facing opposite directions.</p>
+          <p><a href="/articles/serving-the-model/">Part 5</a> returns to the attention from part 1. The past keys and values are stored, so a new token is the only comparison the model has to run. The series opens on how a vector is built and closes on how to keep building it, one token at a time, on a machine that has to answer.</p>
+        </section>
+
+        <section aria-labelledby="start">
+          <h2 id="start">Where to start</h2>
+          <p>Start with <a href="/articles/the-core-engine/">The Core Engine</a>. When a later page surprises you, the surprise is one of the choices that page names: a neighbor weighted in, a feature gated out, an expert left idle, a past token read from cache. This guide is here when you want the map again.</p>
+        </section>
+      </div>
+      <nav class="series-links" aria-label="Series">Introduction. <a href="/articles/the-core-engine/">Next: The Core Engine</a></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-links">
+      <a href="https://linkedin.com/in/jeff-ong" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      · <a href="https://github.com/arcpx-eng" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </p>
+    <p>Designed &amp; built by Jeff Ong · © 2026</p>
+  </footer>
+
+  <div id="cookie-banner" class="cookie-banner" role="region" aria-label="Analytics consent" hidden>
+    <p>This site uses Google Analytics to count visits. It stays off unless you accept.</p>
+    <div class="cookie-banner-actions">
+      <button type="button" id="cookie-reject">Reject</button>
+      <button type="button" id="cookie-accept">Accept</button>
+    </div>
+  </div>
+
+  <script src="/main.js"></script>
+</body>
+
+</html>

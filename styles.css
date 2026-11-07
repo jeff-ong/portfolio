@@ -541,6 +541,29 @@ img.work-tile-logo {
   color: var(--text-muted);
 }
 
+.series-links {
+  margin: 1.15rem 0 0;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.article-body + .series-links {
+  margin-top: 2.75rem;
+}
+
+.article-body p.formula {
+  margin: 0.35rem 0 1.2rem;
+  padding: 0.9rem 1rem;
+  background: var(--bg-soft);
+  font-family: var(--font-sans);
+  font-size: 0.98rem;
+  line-height: 1.55;
+  overflow-x: auto;
+}
+
 .article-hero {
   margin: 1.75rem 0 0;
 }

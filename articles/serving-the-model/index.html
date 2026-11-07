@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inside the Model: Serving the Model | Jeff Ong</title>
+  <meta name="description"
+    content="How the KV cache and grouped-query attention speed up inference, and how LoRA and QLoRA fine-tune a model on one GPU.">
+  <meta name="author" content="Jeff Ong">
+  <link rel="canonical" href="https://jeff-ong.com/articles/serving-the-model/">
+  <meta property="og:title" content="Inside the Model: Serving the Model">
+  <meta property="og:description"
+    content="How the KV cache and grouped-query attention speed up inference, and how LoRA and QLoRA fine-tune a model on one GPU.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://jeff-ong.com/articles/serving-the-model/">
+  <meta property="article:published_time" content="2026-11-07">
+  <meta property="article:author" content="Jeff Ong">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Inside the Model: Serving the Model">
+  <meta name="twitter:description"
+    content="How the KV cache and grouped-query attention speed up inference, and how LoRA and QLoRA fine-tune a model on one GPU.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Inside the Model: Serving the Model",
+      "description": "How the KV cache and grouped-query attention speed up inference, and how LoRA and QLoRA fine-tune a model on one GPU.",
+      "datePublished": "2026-11-07",
+      "dateModified": "2026-11-07",
+      "author": {
+        "@type": "Person",
+        "name": "Jeff Ong",
+        "url": "https://jeff-ong.com/"
+      },
+      "publisher": {
+        "@type": "Person",
+        "name": "Jeff Ong",
+        "url": "https://jeff-ong.com/"
+      },
+      "mainEntityOfPage": "https://jeff-ong.com/articles/serving-the-model/",
+      "isPartOf": {
+        "@type": "CreativeWorkSeries",
+        "name": "Inside the Model"
+      },
+      "position": 5,
+      "inLanguage": "en"
+    }
+  </script>
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Jeff Ong">JO</a>
+    <nav class="site-nav" aria-label="Primary">
+      <ul id="nav-menu" class="nav-links">
+        <li><a href="/#writing">Articles</a></li>
+        <li><a href="/#experiments">Experiments</a></li>
+        <li><a href="/Resume-Jeff-Ong.md" download="Jeff-Ong-Resume.md">Resume</a></li>
+      </ul>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </nav>
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode">
+      <span class="theme-icon theme-icon--light" aria-hidden="true">☀</span>
+      <span class="theme-icon theme-icon--dark" aria-hidden="true">☾</span>
+    </button>
+  </header>
+
+  <main class="article-page">
+    <article>
+      <a class="article-back" href="/#writing"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>Articles</a>
+      <h1 class="article-title">Inside the Model: Serving the Model</h1>
+      <time class="project-date" datetime="2026-11-07">November 7, 2026</time>
+      <p class="article-dek">The KV cache and grouped-query attention make the next token a memory problem you can size. LoRA and QLoRA make a fine-tune fit beside a frozen base on one GPU.</p>
+      <nav class="series-links" aria-label="Series">Part 5 of 5. <a href="/articles/inside-the-model/">Introduction</a> · <a href="/articles/scaling-with-experts/">Previous: Scaling with Experts</a></nav>
+
+      <div class="article-body">
+        <aside class="tldr" aria-label="TLDR">
+          <h2>TLDR</h2>
+          <ul>
+            <li>Each new token needs the keys and values of every earlier token. The KV cache stores them, so the prefix is not recomputed.</li>
+            <li>The cache grows with length, layers, and the number of key-value heads. On a long context it can outweigh the weights.</li>
+            <li>Grouped-query attention lets several query heads share one key-value head. The cache shrinks by that grouping.</li>
+            <li>Decode is limited by how fast those numbers can be read. Batching shares a read across requests.</li>
+            <li>LoRA trains a low-rank update, two small matrices per adapted layer, and can be merged into the base weight for serving.</li>
+            <li>QLoRA stores the frozen base in 4-bit codes, so the same update fits a GPU that cannot hold a second full copy of the model.</li>
+          </ul>
+        </aside>
+
+        <section aria-labelledby="reread">
+          <h2 id="reread">The next token rereads the past</h2>
+          <p><a href="/articles/the-core-engine/">Part 1</a> described attention as a comparison of every query with every visible key. Training can afford the square. The whole sequence is known, and the comparisons run in parallel.</p>
+          <p>Serving a chat model is a different loop. Someone is waiting. The model writes one token, appends it, and writes the next. A naive loop would run the full stack on the growing sequence every time. Almost all of that work would repeat keys and values that have not changed. The KV cache is the decision to keep them.</p>
+        </section>
+
+        <section aria-labelledby="kv-cache">
+          <h2 id="kv-cache">The KV cache</h2>
+          <p>When a token is processed, each layer computes its key and value vectors and appends them to a store. The next token computes its own query, key, and value. Its query attends to every cached key. Its own key and value join the store for the token after that. The prefix is not recomputed.</p>
+          <p>The prompt is handled in one parallel burst, the prefill. Each new token after that is a decode step. The arithmetic is thin. The read is not. The step loads the cache and the active weights, and it is limited by memory bandwidth.</p>
+          <p>The size of the store is worth writing down before you promise a context length. It follows from the architecture, one key and one value per layer, per key-value head, per token.</p>
+          <p class="formula">cache bytes = 2 × layers × KV heads × head size × tokens × bytes per number</p>
+          <p><a href="https://arxiv.org/abs/2407.21783" target="_blank" rel="noopener noreferrer">The Llama 3 paper</a> (Table 3) lists the 8B model as 32 layers, a width of 4,096, 32 attention heads, and 8 key-value heads. The head size is 4,096 / 32 = 128. In 16-bit numbers that is 2 × 32 × 8 × 128 × 2 = 131,072 bytes per token, 128 KB. The same paper starts from an 8K context window. At 8,192 tokens the cache is 1 GB, before the weights, the activations of the current step, or a second user. The same arithmetic with one key-value head per query head, 32 instead of 8, is 4 GB.</p>
+          <p><a href="https://arxiv.org/abs/2309.06180" target="_blank" rel="noopener noreferrer">Kwon et al. (2023)</a> treat the store the way an operating system treats memory. PagedAttention allocates the cache in fixed blocks. A request receives more blocks as its sequence grows. A server can host many sequences of different lengths without reserving the maximum context for each of them. When a reply finishes, its blocks return to the pool. Their system, vLLM, is the serving stack built on that allocator.</p>
+          <p>A decode step reads the weights whether one request is waiting or several are. <a href="https://www.usenix.org/conference/osdi22/presentation/yu" target="_blank" rel="noopener noreferrer">Yu et al. (2022)</a> schedule that work per iteration. A finished request can return, and a new one can join, without waiting for every other request in the batch to end. The weights are read once for everyone in the iteration. Faster inference, at this layer, means fewer bytes per token and more tokens sharing each read.</p>
+        </section>
+
+        <section aria-labelledby="gqa">
+          <h2 id="gqa">Grouped-query attention</h2>
+          <p>Multi-head attention gives every query head a key head and a value head of its own. The cache stores all of them. <a href="https://arxiv.org/abs/1911.02150" target="_blank" rel="noopener noreferrer">Shazeer (2019)</a> defines the other end of the range, multi-query attention: one key head and one value head, shared by every query. The cache shrinks to a single head. Queries then look up the same keys.</p>
+          <p><a href="https://arxiv.org/abs/2305.13245" target="_blank" rel="noopener noreferrer">Ainslie et al. (2023)</a> put grouped-query attention between those two. The query heads are divided into groups, and each group shares one key head and one value head. They also show a multi-head checkpoint can be converted toward grouped heads and trained further. Llama 3 8B, in the table above, has 32 query heads and 8 key-value heads. Four queries share one pair, and the cache is a quarter of a full set of heads. That is why 8,192 tokens cost 1 GB in the sum above, and 4 GB if every query head kept its own key and value.</p>
+          <p>Ainslie et al. find that a modest number of groups keeps accuracy close to separate heads, with an inference cost closer to multi-query attention. <a href="https://arxiv.org/abs/2307.09288" target="_blank" rel="noopener noreferrer">Touvron et al. (2023)</a> use the design for the larger Llama 2 models, the 34B and the 70B, to make inference scale. The Llama 3 paper then uses 8 key-value heads at the 8B, 70B, and 405B sizes.</p>
+        </section>
+
+        <section aria-labelledby="lora">
+          <h2 id="lora">LoRA</h2>
+          <p>A full fine-tune writes a new copy of every matrix, and it needs optimizer state for all of them. <a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noopener noreferrer">Hu et al. (2021)</a> leave the base weight frozen and learn a correction of limited rank.</p>
+          <p class="formula">y = Wx + (α / r) BAx</p>
+          <p>W is frozen. A and B are the learned matrices. Their inner dimension r is the rank. α / r is the paper's scale, so changing the rank does not silently change the size of the update. B starts at zero, so the model begins as the base model and the learned change grows from nothing. Hu et al. adapt the query and value projections. On the GPT-3 models they measured, a rank of one or two was often competitive with much higher ranks.</p>
+          <p>You store megabytes where the base was gigabytes. At serving time the low-rank product can be folded into W, and the forward pass is the original one. The adapter can also stay unmerged, so several task adapters share one loaded base. Fold the update when the model has one job. Keep the side path when it has several.</p>
+        </section>
+
+        <section aria-labelledby="qlora">
+          <h2 id="qlora">QLoRA</h2>
+          <p><a href="https://arxiv.org/abs/2305.14314" target="_blank" rel="noopener noreferrer">Dettmers, Pagnoni, Holtzman, and Zettlemoyer (2023)</a> store that frozen base in 4-bit NormalFloat. The levels of the code are the quantiles of a normal distribution, because pretrained weights are roughly normal. A 7-billion-parameter matrix is about 14 GB in 16-bit numbers and about 3.5 GB in 4-bit numbers, before the scale factors. The adapters, and the gradients that update them, stay in 16-bit. Optimizer state exists only for the adapters.</p>
+          <p>Two techniques in the paper make the fit hold. Double quantization compresses the scale factors themselves, about 0.37 bits per parameter in their accounting. Paged optimizers use unified memory to move optimizer state off the GPU when a long sequence would otherwise run out of memory, and bring it back after the spike. With both, they fine-tune a 65B model on a single 48 GB GPU. The 16-bit fine-tune they compare against needed more than 780 GB. Their 7B Guanaco model then deploys in 5 GB.</p>
+          <p>The same paper reports what to adapt. LoRA on the query and value projections alone did not recover full fine-tuning. Adapters on all linear layers of the block did, and the rank mattered less than which layers were included. The runs they publish use rank 64 and α = 16. The base is not updated in place while it sits in 4-bit codes. Train the adapter beside it. To serve one merged weight, dequantize, add the low-rank product, and save the result. To keep the small deployment, serve the 4-bit base and the adapter together.</p>
+        </section>
+
+        <section aria-labelledby="serving-shape">
+          <h2 id="serving-shape">A serving shape</h2>
+          <ol class="roadmap">
+            <li>
+              <span class="roadmap-step">1</span>
+              <div>
+                <strong>Size the cache first</strong>
+                <span>Use the formula. The key-value head count is the number it wants, and grouped-query checkpoints already shrink it.</span>
+              </div>
+            </li>
+            <li>
+              <span class="roadmap-step">2</span>
+              <div>
+                <strong>Page the store</strong>
+                <span>Fixed blocks let requests of different lengths share a GPU. Return the blocks when a reply ends.</span>
+              </div>
+            </li>
+            <li>
+              <span class="roadmap-step">3</span>
+              <div>
+                <strong>Batch the decode</strong>
+                <span>Yu et al. run one iteration for every request that is mid-reply, so one read of the weights serves the batch.</span>
+              </div>
+            </li>
+            <li>
+              <span class="roadmap-step">4</span>
+              <div>
+                <strong>Fine-tune the thin update</strong>
+                <span>QLoRA. Dettmers et al. fit a 65B model on one 48 GB GPU, from a 16-bit fine-tune that needed more than 780 GB.</span>
+              </div>
+            </li>
+            <li>
+              <span class="roadmap-step">5</span>
+              <div>
+                <strong>Adapt every linear layer</strong>
+                <span>The QLoRA runs use rank 64 and α = 16. The paper finds the set of layers matters more than the rank.</span>
+              </div>
+            </li>
+            <li>
+              <span class="roadmap-step">6</span>
+              <div>
+                <strong>Merge, or keep the adapter</strong>
+                <span>Merge for one job. Keep it separate when one base will serve more than one.</span>
+              </div>
+            </li>
+          </ol>
+        </section>
+
+        <section aria-labelledby="takeaway">
+          <h2 id="takeaway">What to take with you</h2>
+          <p>Prefill is a burst of parallel work on the prompt. Decode is a long series of memory reads, one token wide. The KV cache is what those reads are full of. Grouped-query attention is how the checkpoint makes each read smaller. LoRA is a thin update you can merge. QLoRA is that update with the base packed into 4 bits, which is why a fine-tune of a model this size fits on a GPU a second full copy would not.</p>
+          <p>The series closes on the block it opened with. <a href="/articles/the-core-engine/">Part 1</a> built a contextual vector with attention. Serving is that attention with the past stored, the key-value heads shared so the store fits, and the weights either packed and frozen or edited by a low-rank correction you can afford to train.</p>
+        </section>
+
+        <section aria-labelledby="papers">
+          <h2 id="papers">Sources</h2>
+          <ol class="refs">
+            <li>Noam Shazeer. <a href="https://arxiv.org/abs/1911.02150" target="_blank" rel="noopener noreferrer">Fast Transformer Decoding: One Write-Head is All You Need</a>. arXiv:1911.02150, 2019. Multi-query attention.</li>
+            <li>Joshua Ainslie, James Lee-Thorp, Michiel de Jong, Yury Zemlyanskiy, Federico Lebrón, and Sumit Sanghai. <a href="https://arxiv.org/abs/2305.13245" target="_blank" rel="noopener noreferrer">GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints</a>. arXiv:2305.13245, 2023.</li>
+            <li>Woosuk Kwon and colleagues. <a href="https://arxiv.org/abs/2309.06180" target="_blank" rel="noopener noreferrer">Efficient Memory Management for Large Language Model Serving with PagedAttention</a>. arXiv:2309.06180, 2023.</li>
+            <li>Gyeong-In Yu, Joo Seong Jeong, Geon-Woo Kim, Soojeong Kim, and Byung-Gon Chun. <a href="https://www.usenix.org/conference/osdi22/presentation/yu" target="_blank" rel="noopener noreferrer">Orca: A Distributed Serving System for Transformer-Based Generative Models</a>. OSDI, 2022.</li>
+            <li>Edward J. Hu and colleagues. <a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noopener noreferrer">LoRA: Low-Rank Adaptation of Large Language Models</a>. arXiv:2106.09685, 2021.</li>
+            <li>Tim Dettmers, Artidoro Pagnoni, Ari Holtzman, and Luke Zettlemoyer. <a href="https://arxiv.org/abs/2305.14314" target="_blank" rel="noopener noreferrer">QLoRA: Efficient Finetuning of Quantized Language Models</a>. arXiv:2305.14314, 2023.</li>
+            <li>Hugo Touvron and colleagues. <a href="https://arxiv.org/abs/2307.09288" target="_blank" rel="noopener noreferrer">Llama 2: Open Foundation and Fine-Tuned Chat Models</a>. arXiv:2307.09288, 2023. Grouped-query attention on the 70B model.</li>
+            <li>The Llama Team. <a href="https://arxiv.org/abs/2407.21783" target="_blank" rel="noopener noreferrer">The Llama 3 Herd of Models</a>. arXiv:2407.21783, 2024.</li>
+          </ol>
+        </section>
+      </div>
+      <nav class="series-links" aria-label="Series">Part 5 of 5. <a href="/articles/inside-the-model/">Introduction</a> · <a href="/articles/scaling-with-experts/">Previous: Scaling with Experts</a></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-links">
+      <a href="https://linkedin.com/in/jeff-ong" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      · <a href="https://github.com/arcpx-eng" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </p>
+    <p>Designed &amp; built by Jeff Ong · © 2026</p>
+  </footer>
+
+  <div id="cookie-banner" class="cookie-banner" role="region" aria-label="Analytics consent" hidden>
+    <p>This site uses Google Analytics to count visits. It stays off unless you accept.</p>
+    <div class="cookie-banner-actions">
+      <button type="button" id="cookie-reject">Reject</button>
+      <button type="button" id="cookie-accept">Accept</button>
+    </div>
+  </div>
+
+  <script src="/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inside the Model: How Models Learn | Jeff Ong</title>
+  <meta name="description"
+    content="How next-token prediction and denoising learn from raw data, and how RLHF and DPO learn from human preferences.">
+  <meta name="author" content="Jeff Ong">
+  <link rel="canonical" href="https://jeff-ong.com/articles/how-models-learn/">
+  <meta property="og:title" content="Inside the Model: How Models Learn">
+  <meta property="og:description"
+    content="How next-token prediction and denoising learn from raw data, and how RLHF and DPO learn from human preferences.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://jeff-ong.com/articles/how-models-learn/">
+  <meta property="article:published_time" content="2026-11-07">
+  <meta property="article:author" content="Jeff Ong">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Inside the Model: How Models Learn">
+  <meta name="twitter:description"
+    content="How next-token prediction and denoising learn from raw data, and how RLHF and DPO learn from human preferences.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Inside the Model: How Models Learn",
+      "description": "How next-token prediction and denoising learn from raw data, and how RLHF and DPO learn from human preferences.",
+      "datePublished": "2026-11-07",
+      "dateModified": "2026-11-07",
+      "author": {
+        "@type": "Person",
+        "name": "Jeff Ong",
+        "url": "https://jeff-ong.com/"
+      },
+      "publisher": {
+        "@type": "Person",
+        "name": "Jeff Ong",
+        "url": "https://jeff-ong.com/"
+      },
+      "mainEntityOfPage": "https://jeff-ong.com/articles/how-models-learn/",
+      "isPartOf": {
+        "@type": "CreativeWorkSeries",
+        "name": "Inside the Model"
+      },
+      "position": 3,
+      "inLanguage": "en"
+    }
+  </script>
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Jeff Ong">JO</a>
+    <nav class="site-nav" aria-label="Primary">
+      <ul id="nav-menu" class="nav-links">
+        <li><a href="/#writing">Articles</a></li>
+        <li><a href="/#experiments">Experiments</a></li>
+        <li><a href="/Resume-Jeff-Ong.md" download="Jeff-Ong-Resume.md">Resume</a></li>
+      </ul>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </nav>
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode">
+      <span class="theme-icon theme-icon--light" aria-hidden="true">☀</span>
+      <span class="theme-icon theme-icon--dark" aria-hidden="true">☾</span>
+    </button>
+  </header>
+
+  <main class="article-page">
+    <article>
+      <a class="article-back" href="/#writing"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>Articles</a>
+      <h1 class="article-title">Inside the Model: How Models Learn</h1>
+      <time class="project-date" datetime="2026-11-07">November 7, 2026</time>
+      <p class="article-dek">Next-token prediction and denoising learn a distribution by restoring something the training process removed. RLHF and DPO then tilt that distribution toward the answer a person preferred.</p>
+      <nav class="series-links" aria-label="Series">Part 3 of 5. <a href="/articles/inside-the-model/">Introduction</a> · <a href="/articles/visual-control/">Previous: Visual Control</a> · <a href="/articles/scaling-with-experts/">Next: Scaling with Experts</a></nav>
+
+      <div class="article-body">
+        <aside class="tldr" aria-label="TLDR">
+          <h2>TLDR</h2>
+          <ul>
+            <li>Pretraining needs no hand-written class labels. The held-out piece of a real example is the label.</li>
+            <li>Next-token prediction trains a language model. Each position scores the whole vocabulary, and the loss is its surprise at the true continuation.</li>
+            <li>Denoising trains a diffusion model. Corrupt a latent by a random amount, and ask the network to undo that corruption. Sampling walks the same task from full noise toward a clean image.</li>
+            <li>Those objectives learn what the collection tends to do. Instruction following and taste are a second stage.</li>
+            <li>RLHF fits a reward model to human comparisons, then optimizes the language model against that score, with a leash back to the starting policy.</li>
+            <li>DPO trains on the same pairs directly. The preferred answer rises relative to the rejected one, measured against a frozen reference.</li>
+          </ul>
+        </aside>
+
+        <section aria-labelledby="the-label">
+          <h2 id="the-label">The label is the data</h2>
+          <p>A classifier in the textbook sense needs someone to say which class a row belongs to. Text and images at web scale arrive without that column. They arrive as documents and as pictures.</p>
+          <p>The training trick is to damage a complete example and ask the model to repair the damage. The original example is the label. The loss is the error in the repair.</p>
+          <p>Two repairs cover the models in this series. A language model repairs a missing next token, using the contextual vector from <a href="/articles/the-core-engine/">part 1</a>. A diffusion model repairs a noised latent. The sampler in <a href="/articles/visual-control/">part 2</a> is that repair, run from the noisy end.</p>
+        </section>
+
+        <section aria-labelledby="next-token">
+          <h2 id="next-token">Next-token prediction</h2>
+          <p><a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" target="_blank" rel="noopener noreferrer">Radford et al. (2019)</a> train GPT-2 by scoring the next token. Take a sequence and hide the future. At position t the model may see tokens 1 through t. The causal mask is what enforces that. The model must then put a probability on every entry in the vocabulary, as its guess of token t+1.</p>
+          <p>The scores come from a linear layer on the contextual vector, one number per vocabulary entry. A softmax turns the scores into probabilities. The loss on that step is the negative log of the probability on the true next token. A confident, correct guess costs almost nothing. A confident wrong guess costs a great deal, because the log of a tiny probability is a large negative number and the loss flips the sign. Averaged over a corpus, this is cross-entropy, the language-modeling objective in that paper.</p>
+          <p>During training the model is shown the true prefix, including when its own previous guess would have been wrong. <a href="https://doi.org/10.1162/neco.1989.1.2.270" target="_blank" rel="noopener noreferrer">Williams and Zipser (1989)</a> name that setup teacher forcing. The model learns a one-step repair against real context. At sampling time it has to continue from prefixes it wrote itself. A small early miss can steer a long answer, because each later repair conditions on the miss.</p>
+          <p>Whatever helps prediction can be absorbed: spelling, syntax, a name that tends to follow another name, code that tends to compile, the shape of an argument in the essays the crawl contained. The objective asks for a plausible continuation. A true sentence and a fluent invention can both score well when both show up in text of that kind. The preference stage is how a product picks between them.</p>
+        </section>
+
+        <section aria-labelledby="denoising">
+          <h2 id="denoising">Denoising</h2>
+          <p><a href="https://arxiv.org/abs/2006.11239" target="_blank" rel="noopener noreferrer">Ho, Jain, and Abbeel (2020)</a> train a diffusion model on a different kind of damage. Take a clean sample, draw a noise level t, and mix it with Gaussian noise according to a fixed schedule. A small t leaves the sample almost clean. A large t leaves almost pure noise. The network sees the noisy sample and the level t, and it predicts the noise that was mixed in. The loss is the squared error of that prediction. In the latent models of part 2, the sample is the autoencoder's latent and the target is the same noise prediction.</p>
+          <p>Some models predict the clean latent. Some predict a blend of the clean latent and the noise. The target is the corruption in every case. Stable Diffusion's usual target is the noise itself.</p>
+          <p>Because t is chosen at random for every example, one network learns every noise level. Sampling uses that skill in order. Start from pure noise, predict the corruption, step toward the clean image, and repeat. The walk can take fewer steps than the training schedule defined. The sampler is allowed longer strides. The text condition is present in both phases. In training, the network learns to denoise toward images that match a caption. In sampling, the caption steers which clean image the walk approaches.</p>
+          <p>The family resemblance is the lesson. Next-token prediction fills a discrete hole at the end of a prefix. Denoising fills a continuous hole spread through the latent. Both turn an unlabeled collection into a training signal by holding part of a real example back.</p>
+        </section>
+
+        <section aria-labelledby="left-undone">
+          <h2 id="left-undone">What pretraining leaves undone</h2>
+          <p>A model that has only minimized those losses continues in the voice of its data. Asked a question, it may answer. It may write another question. It may extend a forum thread. All three are real continuations of text it has seen. The loss has no term for "do what this person asked," "be brief," or "refuse this."</p>
+          <p>Those are preferences about behavior. They live in comparisons between answers. The raw corpus does not mark them. The second stage starts from the pretrained model and uses a much smaller set of human judgments.</p>
+        </section>
+
+        <section aria-labelledby="rlhf">
+          <h2 id="rlhf">RLHF</h2>
+          <p><a href="https://arxiv.org/abs/1706.03741" target="_blank" rel="noopener noreferrer">Christiano et al. (2017)</a> train a reward from human comparisons, then optimize a policy against it. <a href="https://arxiv.org/abs/2203.02155" target="_blank" rel="noopener noreferrer">Ouyang et al. (2022)</a> bring that recipe to instruction-following language models in three moves.</p>
+          <ol class="roadmap">
+            <li>
+              <span class="roadmap-step">1</span>
+              <div>
+                <strong>Supervised fine-tuning</strong>
+                <span>Writers demonstrate the behavior: a prompt, and the answer the product should give. The same next-token loss, on those demonstrations only.</span>
+              </div>
+            </li>
+            <li>
+              <span class="roadmap-step">2</span>
+              <div>
+                <strong>A reward model</strong>
+                <span>People compare two answers to the same prompt. A second model learns to score the preferred one higher.</span>
+              </div>
+            </li>
+            <li>
+              <span class="roadmap-step">3</span>
+              <div>
+                <strong>Policy optimization</strong>
+                <span>The language model is updated to raise that score, and a penalty keeps it close to the supervised model.</span>
+              </div>
+            </li>
+          </ol>
+          <p>The supervised model is already a policy: a distribution over replies that answers, where the pretrained model might have continued a web page. The reward model compresses the comparisons. Its training rule is pairwise. The probability that one answer beats the other should track how often people said it did. A logistic curve on the gap between the two scores can express that. The number it outputs is an approximation of a preference, with all the roughness of a model trained on a finite set of votes.</p>
+          <p>The policy is then optimized to increase the reward. Proximal policy optimization is the usual algorithm. It takes steps that raise the score and that stay inside a trust region of the current policy. A KL penalty pulls the result back toward the supervised model. Improvement has to be a kind of reply the supervised model could already have given some probability to.</p>
+          <p>Without that leash, the policy finds phrasing the reward model overrates. The reward model is a proxy for a person. A proxy can be gamed. The name for that failure is reward hacking, and the KL term is the standard defense against it.</p>
+        </section>
+
+        <section aria-labelledby="dpo">
+          <h2 id="dpo">DPO</h2>
+          <p><a href="https://arxiv.org/abs/2305.18290" target="_blank" rel="noopener noreferrer">Rafailov, Sharma, Mitchell, Ermon, Manning, and Finn (2023)</a> use the same pairs and skip the separate reward model and the reinforcement-learning loop. Their derivation starts from the best policy for a reward minus a KL penalty. That policy has a closed form. In the closed form, the reward can be rewritten as the gap in log probability between the trained policy and a frozen reference, usually the supervised model. Substitute that expression into the pairwise rule, and the reward model drops out. A classification loss on each pair is what remains.</p>
+          <p>The loss falls when the policy raises the probability of the preferred answer and lowers the probability of the rejected one, judged relative to the reference. A coefficient β sets how far that gap may grow. A large β stays near the reference. A small β follows the preferences further.</p>
+          <p class="formula">loss = −log σ( β [log π(y<sub>w</sub>|x) − log π<sub>ref</sub>(y<sub>w</sub>|x)] − β [log π(y<sub>l</sub>|x) − log π<sub>ref</sub>(y<sub>l</sub>|x)] )</p>
+          <p>y<sub>w</sub> is the answer a person preferred. y<sub>l</sub> is the one they set aside. σ is the logistic curve. The reference model in the denominator is the leash, written directly into the loss.</p>
+          <p>The pairs still have to be the comparisons you mean. A rejected answer should be one you want less of: an instruction ignored, a reply that wanders, a claim in the tone of certainty with nothing behind it. If the rejected column is full of answers that were acceptable, the loss spends its gradient suppressing them. DPO has fewer moving parts than the RLHF loop. It depends just as hard on what people were asked to compare.</p>
+        </section>
+
+        <section aria-labelledby="takeaway">
+          <h2 id="takeaway">What to take with you</h2>
+          <p>Unstructured data is enough when the question is "what usually comes next," or "what did this noise cover." The model learns the shape of the collection it was given. Human preference is a second dataset, much smaller, whose label is a comparison.</p>
+          <p>RLHF compresses the comparisons into a score and optimizes against the score, leashed to the supervised model. DPO writes the leash into the loss and trains on the pairs. Both raise the preferred replies, including the facts written inside those replies, at the scale of a fine-tune. A body of knowledge that appears in neither the pretraining collection nor the preferred answers is still absent. The second stage tilts a distribution. The first stage is where that distribution came from.</p>
+        </section>
+
+        <section aria-labelledby="papers">
+          <h2 id="papers">Sources</h2>
+          <ol class="refs">
+            <li>Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei, and Ilya Sutskever. <a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" target="_blank" rel="noopener noreferrer">Language Models are Unsupervised Multitask Learners</a>. OpenAI, 2019.</li>
+            <li>Ronald J. Williams and David Zipser. <a href="https://doi.org/10.1162/neco.1989.1.2.270" target="_blank" rel="noopener noreferrer">A Learning Algorithm for Continually Running Fully Recurrent Neural Networks</a>. Neural Computation, 1989. Teacher forcing.</li>
+            <li>Jonathan Ho, Ajay Jain, and Pieter Abbeel. <a href="https://arxiv.org/abs/2006.11239" target="_blank" rel="noopener noreferrer">Denoising Diffusion Probabilistic Models</a>. arXiv:2006.11239, 2020.</li>
+            <li>Paul F. Christiano, Jan Leike, Tom B. Brown, Miljan Martic, Shane Legg, and Dario Amodei. <a href="https://arxiv.org/abs/1706.03741" target="_blank" rel="noopener noreferrer">Deep Reinforcement Learning from Human Preferences</a>. arXiv:1706.03741, 2017.</li>
+            <li>Long Ouyang and colleagues. <a href="https://arxiv.org/abs/2203.02155" target="_blank" rel="noopener noreferrer">Training language models to follow instructions with human feedback</a>. arXiv:2203.02155, 2022.</li>
+            <li>Rafael Rafailov, Archit Sharma, Eric Mitchell, Stefano Ermon, Christopher D. Manning, and Chelsea Finn. <a href="https://arxiv.org/abs/2305.18290" target="_blank" rel="noopener noreferrer">Direct Preference Optimization: Your Language Model is Secretly a Reward Model</a>. arXiv:2305.18290, 2023.</li>
+          </ol>
+        </section>
+      </div>
+      <nav class="series-links" aria-label="Series">Part 3 of 5. <a href="/articles/inside-the-model/">Introduction</a> · <a href="/articles/visual-control/">Previous: Visual Control</a> · <a href="/articles/scaling-with-experts/">Next: Scaling with Experts</a></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-links">
+      <a href="https://linkedin.com/in/jeff-ong" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      · <a href="https://github.com/arcpx-eng" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </p>
+    <p>Designed &amp; built by Jeff Ong · © 2026</p>
+  </footer>
+
+  <div id="cookie-banner" class="cookie-banner" role="region" aria-label="Analytics consent" hidden>
+    <p>This site uses Google Analytics to count visits. It stays off unless you accept.</p>
+    <div class="cookie-banner-actions">
+      <button type="button" id="cookie-reject">Reject</button>
+      <button type="button" id="cookie-accept">Accept</button>
+    </div>
+  </div>
+
+  <script src="/main.js"></script>
+</body>
+
+</html>

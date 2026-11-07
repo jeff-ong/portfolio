@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inside the Model: Scaling with Experts | Jeff Ong</title>
+  <meta name="description"
+    content="How mixture-of-experts models, sparse routing, and gating networks grow the parameter count without running every parameter.">
+  <meta name="author" content="Jeff Ong">
+  <link rel="canonical" href="https://jeff-ong.com/articles/scaling-with-experts/">
+  <meta property="og:title" content="Inside the Model: Scaling with Experts">
+  <meta property="og:description"
+    content="How mixture-of-experts models, sparse routing, and gating networks grow the parameter count without running every parameter.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://jeff-ong.com/articles/scaling-with-experts/">
+  <meta property="article:published_time" content="2026-11-07">
+  <meta property="article:author" content="Jeff Ong">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Inside the Model: Scaling with Experts">
+  <meta name="twitter:description"
+    content="How mixture-of-experts models, sparse routing, and gating networks grow the parameter count without running every parameter.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Inside the Model: Scaling with Experts",
+      "description": "How mixture-of-experts models, sparse routing, and gating networks grow the parameter count without running every parameter.",
+      "datePublished": "2026-11-07",
+      "dateModified": "2026-11-07",
+      "author": {
+        "@type": "Person",
+        "name": "Jeff Ong",
+        "url": "https://jeff-ong.com/"
+      },
+      "publisher": {
+        "@type": "Person",
+        "name": "Jeff Ong",
+        "url": "https://jeff-ong.com/"
+      },
+      "mainEntityOfPage": "https://jeff-ong.com/articles/scaling-with-experts/",
+      "isPartOf": {
+        "@type": "CreativeWorkSeries",
+        "name": "Inside the Model"
+      },
+      "position": 4,
+      "inLanguage": "en"
+    }
+  </script>
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Jeff Ong">JO</a>
+    <nav class="site-nav" aria-label="Primary">
+      <ul id="nav-menu" class="nav-links">
+        <li><a href="/#writing">Articles</a></li>
+        <li><a href="/#experiments">Experiments</a></li>
+        <li><a href="/Resume-Jeff-Ong.md" download="Jeff-Ong-Resume.md">Resume</a></li>
+      </ul>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </nav>
+    <button class="theme-toggle" type="button" aria-label="Toggle dark mode">
+      <span class="theme-icon theme-icon--light" aria-hidden="true">☀</span>
+      <span class="theme-icon theme-icon--dark" aria-hidden="true">☾</span>
+    </button>
+  </header>
+
+  <main class="article-page">
+    <article>
+      <a class="article-back" href="/#writing"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>Articles</a>
+      <h1 class="article-title">Inside the Model: Scaling with Experts</h1>
+      <time class="project-date" datetime="2026-11-07">November 7, 2026</time>
+      <p class="article-dek">A dense model spends every parameter on every token. A mixture of experts stores a much larger feed-forward pool, and a gate wakes a few of them.</p>
+      <nav class="series-links" aria-label="Series">Part 4 of 5. <a href="/articles/inside-the-model/">Introduction</a> · <a href="/articles/how-models-learn/">Previous: How Models Learn</a> · <a href="/articles/serving-the-model/">Next: Serving the Model</a></nav>
+
+      <div class="article-body">
+        <aside class="tldr" aria-label="TLDR">
+          <h2>TLDR</h2>
+          <ul>
+            <li>Most of a transformer's parameters sit in the feed-forward block. A dense model runs that whole block on every token.</li>
+            <li>A mixture of experts replaces the block with many copies, and runs a few of them.</li>
+            <li>The gating network scores every expert. Sparse routing keeps the top scores and renormalizes them.</li>
+            <li>Attention stays shared. Specialization lives in the feed-forward slot, which is where the parameters are.</li>
+            <li>A balance penalty and a per-expert token budget keep the gate from sending every token to the same expert.</li>
+            <li>Compute follows the experts that ran. Memory still has to reach the experts the gate might choose.</li>
+          </ul>
+        </aside>
+
+        <section aria-labelledby="dense">
+          <h2 id="dense">Every parameter, every token</h2>
+          <p>In the block from <a href="/articles/the-core-engine/">part 1</a>, attention mixes positions and the feed-forward rewrites each position. Count the matrices. Attention is a handful of projections, each the width of the residual stream. The SwiGLU feed-forward is three projections with an inner width several times larger. In a dense transformer that feed-forward is most of the parameter count, and every token walks through all of it.</p>
+          <p>Scaling that design has meant wider matrices and a deeper stack. Quality has followed the size. So has the bill. At inference every parameter is read, including the ones this token had no use for.</p>
+          <p>A mixture of experts grows the feed-forward pool and touches a slice of it.</p>
+        </section>
+
+        <section aria-labelledby="pool">
+          <h2 id="pool">A pool of experts</h2>
+          <p><a href="https://arxiv.org/abs/1701.06538" target="_blank" rel="noopener noreferrer">Shazeer et al. (2017)</a> replace one feed-forward layer with a sparsely gated pool of them. Attention stays shared by every token. Each expert is an ordinary feed-forward layer with its own weights. A token that needs code and a token that needs ordinary prose can be sent to different experts. The choice can also change from layer to layer. A lower layer may use a broad expert. A higher layer may use one that has absorbed a narrower habit of the data.</p>
+          <p><a href="https://arxiv.org/abs/2401.04088" target="_blank" rel="noopener noreferrer">Jiang et al. (2024)</a> give the picture in Mixtral 8×7B. Each layer holds 8 feed-forward experts. The router picks 2, and the chosen pair can change from token to token and from layer to layer. The paper reports 47 billion parameters stored and 13 billion active during inference. The headline count is the pool. The active count is the forward pass. The same paper separates the bill: inference compute follows the 13 billion that ran, and serving memory follows the 47 billion that have to be reachable.</p>
+        </section>
+
+        <section aria-labelledby="gate">
+          <h2 id="gate">The gating network</h2>
+          <p>The gate is a linear layer. It maps the token's vector to one score per expert. Jiang et al. implement it as a softmax over the top-k logits of that layer, the form used in <a href="https://arxiv.org/abs/2006.16668" target="_blank" rel="noopener noreferrer">GShard</a> (Lepikhin et al., 2020). Left as a softmax over every expert, the mixture would be soft, and every expert would still run.</p>
+          <p>Sparse routing keeps the top k scores, sets the rest to zero, and renormalizes the survivors so they sum to one again. For Mixtral, k is 2.</p>
+          <p class="formula">y = g₁ · Expert₁(x) + g₂ · Expert₂(x)</p>
+          <p>g₁ and g₂ are the renormalized gate weights. Each expert returns a vector the width of the residual stream. The weighted sum is added back the way a single feed-forward output would be. From the rest of the block, the slot looks the same. The selection happened inside it.</p>
+          <p>The forward choice is discrete. An expert is on or off for this token. The backward pass still needs a signal for the scores that made the choice. Training treats the selected set as fixed on the way forward, and sends gradient through the gate weights of the experts that ran. The router can learn to raise a useful expert and to lower a poor one. Experts that were off get no gradient from that token.</p>
+        </section>
+
+        <section aria-labelledby="honest-gate">
+          <h2 id="honest-gate">Keeping the gate honest</h2>
+          <p>A gate with no further pressure collapses. Early in training one or two experts pull ahead. The router notices. Soon every token goes there. The idle experts stop learning. You have paid for a large model, and you are training a small one.</p>
+          <p>Switch Transformers answer that collapse with a penalty and a budget. A later design adds a third piece, an expert that always runs.</p>
+          <h3>A balance penalty</h3>
+          <p><a href="https://arxiv.org/abs/2101.03961" target="_blank" rel="noopener noreferrer">Fedus, Zoph, and Shazeer (2021)</a> write the penalty used in Switch Transformers. Let fᵢ be the fraction of tokens in the batch actually sent to expert i. Let Pᵢ be that expert's average gate probability. With N experts, the added loss is α × N × Σ fᵢPᵢ. It stays small when tokens and probability are spread. It grows when a few experts are both likely and busy. The router is trained on the task and on this penalty together. The task wants the right expert. The penalty wants a used pool. In their runs, α = 0.01 was enough to balance the load without drowning the training loss.</p>
+          <h3>A budget</h3>
+          <p>The same paper gives each expert a capacity, a limited number of tokens in a batch. A capacity factor above 1 leaves slack for an uneven batch. Tokens past the budget are dropped: their expert update is skipped and the representation continues through the residual connection. A balanced router rarely hits the cap. An unbalanced one drops work, and the expert that should have learned from those tokens never sees them.</p>
+          <h3>A shared expert</h3>
+          <p><a href="https://arxiv.org/abs/2401.06066" target="_blank" rel="noopener noreferrer">Dai et al. (2024)</a> isolate the computation every token needs in shared experts, and route the remaining experts as specialists. Common features have a home that is always on. The routed experts are free to be narrow, and the gate no longer has to spend a slot on "everyone needs this."</p>
+        </section>
+
+        <section aria-labelledby="the-bill">
+          <h2 id="the-bill">What you still pay for</h2>
+          <p>Sparse routing cuts arithmetic. Jiang et al. separate that from memory: Mixtral's compute follows the 13 billion active parameters, and its serving memory follows the 47 billion that must be reachable. On many devices the experts are partitioned. The Mixtral paper describes expert parallelism, following GShard: a token travels to the device that holds the expert it was assigned, and the expert's output travels back. That exchange is the new cost.</p>
+          <p>The savings show up when the exchange costs less than running every expert on every token. That is the regime these models are built for. <a href="/articles/serving-the-model/">Part 5</a> takes up the related serving fact for dense models: once the parameters are chosen, the cost of the next token is dominated by reading them.</p>
+        </section>
+
+        <section aria-labelledby="takeaway">
+          <h2 id="takeaway">What to take with you</h2>
+          <p>The gate is a third selection. Attention selects tokens. SwiGLU selects features inside one feed-forward. The router selects which feed-forwards exist for this token. Mixture of experts scales the parameters a model can store, and the specialists it can train. Sparse routing scales the parameters that fire.</p>
+          <p>When you read a parameter count, ask how many ran. When a sparse model disappoints next to a dense model of the active size, inspect the router before you blame the data. A gate that ignores half its experts has thrown the extra parameters away. Balance, capacity, and a shared expert are there so the extra ones stay in the training run.</p>
+        </section>
+
+        <section aria-labelledby="papers">
+          <h2 id="papers">Sources</h2>
+          <ol class="refs">
+            <li>Noam Shazeer, Azalia Mirhoseini, Krzysztof Maziarz, Andy Davis, Quoc Le, Geoffrey Hinton, and Jeff Dean. <a href="https://arxiv.org/abs/1701.06538" target="_blank" rel="noopener noreferrer">Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer</a>. arXiv:1701.06538, 2017.</li>
+            <li>Dmitry Lepikhin and colleagues. <a href="https://arxiv.org/abs/2006.16668" target="_blank" rel="noopener noreferrer">GShard: Scaling Giant Models with Conditional Computation and Automatic Sharding</a>. arXiv:2006.16668, 2020.</li>
+            <li>William Fedus, Barret Zoph, and Noam Shazeer. <a href="https://arxiv.org/abs/2101.03961" target="_blank" rel="noopener noreferrer">Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity</a>. arXiv:2101.03961, 2021.</li>
+            <li>Albert Q. Jiang and colleagues. <a href="https://arxiv.org/abs/2401.04088" target="_blank" rel="noopener noreferrer">Mixtral of Experts</a>. arXiv:2401.04088, 2024.</li>
+            <li>Damai Dai and colleagues. <a href="https://arxiv.org/abs/2401.06066" target="_blank" rel="noopener noreferrer">DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models</a>. arXiv:2401.06066, 2024.</li>
+          </ol>
+        </section>
+      </div>
+      <nav class="series-links" aria-label="Series">Part 4 of 5. <a href="/articles/inside-the-model/">Introduction</a> · <a href="/articles/how-models-learn/">Previous: How Models Learn</a> · <a href="/articles/serving-the-model/">Next: Serving the Model</a></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-links">
+      <a href="https://linkedin.com/in/jeff-ong" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      · <a href="https://github.com/arcpx-eng" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </p>
+    <p>Designed &amp; built by Jeff Ong · © 2026</p>
+  </footer>
+
+  <div id="cookie-banner" class="cookie-banner" role="region" aria-label="Analytics consent" hidden>
+    <p>This site uses Google Analytics to count visits. It stays off unless you accept.</p>
+    <div class="cookie-banner-actions">
+      <button type="button" id="cookie-reject">Reject</button>
+      <button type="button" id="cookie-accept">Accept</button>
+    </div>
+  </div>
+
+  <script src="/main.js"></script>
+</body>
+
+</html>
